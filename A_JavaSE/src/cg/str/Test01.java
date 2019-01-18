@@ -6,14 +6,14 @@ public class Test01 {
 		// showStrSub();
 		//getStr();
 
-		String ss = "97112";
+		String ss = "";
 		//System.out.println(ss);
 
 
 		String[] split = ss.split(",");
-		//System.out.println(split.length);
+		System.out.println(split.length);
 		for (int i = 0; i < split.length; i++) {
-			System.out.println(split[i]);
+			System.out.println("111"+split[i]);
 		}
 
 
