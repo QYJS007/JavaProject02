@@ -6,9 +6,7 @@ public class Test_Integer {
 		// TODO Auto-generated method stub
 
 		int a = 1; 
-		Integer integer = new Integer(300);
-		Integer d = new Integer(300);
-		Integer c = 300;
+		Integer integer = new Integer(1);
 		Integer b = 129;
 
 		System.out.println(a==integer);//true
@@ -19,10 +17,6 @@ public class Test_Integer {
 		int compareTo = b.compareTo(129);
 
 		System.out.println(compareTo); // 0
-		
-		
-		System.out.println(c == integer);
-		System.out.println(d == integer);
 	}
 
 }
