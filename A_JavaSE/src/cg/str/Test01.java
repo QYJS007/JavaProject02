@@ -12,8 +12,8 @@ public class Test01 {
 
 		String[] split = ss.split(",");
 		System.out.println(split.length);
-		for (int i = 0; i < split.length; i++) {
-			System.out.println("111"+split[i]);
+		for (int i = 0; i < split.length; i++) { 
+			System.out.println("111"+split[i]); 
 		}
 
 
