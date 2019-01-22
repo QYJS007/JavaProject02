@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,9 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import utils.pdf.BasePdfPCell;
-
 import com.lowagie.text.Cell;
-import com.lowagie.text.Chunk;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Element;
@@ -34,8 +31,8 @@ public class A_Test02 {
 
 	public static void main(String[] args) {
 		try {
-			File createPDF = createPDF();
-			System.out.println(createPDF);
+		//	File createPDF = createPDF();
+			//System.out.println(createPDF);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -56,36 +53,38 @@ public class A_Test02 {
 	 * @throws MalformedURLException 
 	 * @throws Exception 
 	 */
-	public static File createPDF()throws DocumentException, MalformedURLException, IOException{
-		Rectangle pageSize  = null;
-		if(null == pageSize){
-			pageSize = PageSize.A4;
+	public static File createPDF( List<String> columnCNList,List<String> columnENList,String title )throws DocumentException, MalformedURLException, IOException{
+		
+		// 1. 创建document对象
+		Rectangle pageSize = PageSize.A4;
+		if(null!=columnCNList&&columnCNList.size()>15){
+			pageSize = PageSize.A4.rotate();
 		}
-		pageSize = PageSize.A4.rotate();
 		Document doc = new Document(pageSize);
-		String title = "bus365";
-		//		创建要返回的文件
+		
+		//创建要返回的文件
+		//String path = Play.applicationPath.getAbsolutePath() ;
 		String path = "D:/AAA/";
-		String tempFileName = System.currentTimeMillis()+"_"+"bus365"+".pdf";
+		// 临时文件名
+		String tempFileName = System.currentTimeMillis()+"_"+"AAAA"+".pdf";
 		File temp = new File(path);
 		if(!temp.exists()){
 			temp.mkdir();
 		}else{
-			/*try {
+			try {
 				deletefile(path);
 			} catch (IOException e) {
-				//  Auto-generated catch block
 				e.printStackTrace();
-			}*/
+			}
 		}
 		temp = new File(path+tempFileName);
-		OutputStream os;
+		
+		// 第二步 写入流
+		PdfWriter.getInstance(doc, new BufferedOutputStream(new FileOutputStream(temp)));
+		//设置标题
+		doc.addTitle(title);
+		doc.open();
 		try {
-			os = new BufferedOutputStream(new FileOutputStream(temp));
-			PdfWriter.getInstance(doc, os);
-			//设置标题
-			doc.addTitle(title);
-			doc.open();
 			/*Image img = Image.getInstance("src/image/bus365.jpg");
 			img.setAlignment(Image.RIGHT);
 			img.setBorder(Image.BOX);
@@ -114,11 +113,7 @@ public class A_Test02 {
             cell11.setVerticalAlignment(Element.ALIGN_MIDDLE);
             cell11.setHorizontalAlignment(Element.ALIGN_CENTER);
             cell11.setBorder(0);
-           // String imagePath = "D:/alibaba.jpg";
-           // Image image1 = Image.getInstance(imagePath); 
             Image img = Image.getInstance("src/image/bus365.jpg");
-
-           // Image image2 = Image.getInstance(imagePath); 
             //设置每列宽度比例   
             int width11[] = {35,40,25};
             table1.setWidths(width11); 
@@ -140,12 +135,12 @@ public class A_Test02 {
 			//Font FontChinese = new Font(bfChinese, 12, Font.NORMAL); 正常字体 ; 
 
 			Font fontCN = new Font(bfChinese, 20,Font.BOLD);// 加粗字体
-			Paragraph paragraph = new Paragraph("Bus365—行程单", fontCN);
-
+			Paragraph paragraph = new Paragraph("AAAAAA—行程单", fontCN);
 			paragraph.setAlignment(Cell.ALIGN_CENTER);
 			doc.add(paragraph);
-
-			doc.add(new  Paragraph());
+			//doc.add(new  Paragraph());
+			
+			
 			/*PdfWriter writer = PdfWriter.getInstance(doc, new FileOutputStream( file));
 			 doc.open();
 			 BaseFont bfChinese = BaseFont.createFont("STSong-Light",
@@ -367,5 +362,36 @@ public class A_Test02 {
 		}*/
 		return temp;
 	}
+	/**
+	 * 删除某个文件夹下的所有文件夹和文件
+	 * 
+	 * @param delpath
+	 *            String
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 * @return boolean
+	 */
+	public static boolean deletefile(String delpath)
+			throws FileNotFoundException, IOException {
+		try {
 
+			File file = new File(delpath);
+			if (!file.isDirectory()) {
+				file.delete();
+			} else if (file.isDirectory()) {
+				String[] filelist = file.list();
+				for (int i = 0; i < filelist.length; i++) {
+					File delfile = new File(delpath + "\\" + filelist[i]);
+					if (!delfile.isDirectory()) {
+						delfile.delete();
+					} else if (delfile.isDirectory()) {
+						deletefile(delpath + "\\" + filelist[i]);
+					}
+				}
+			}
+
+		} catch (FileNotFoundException e) {
+		}
+		return true;
+	}
 }

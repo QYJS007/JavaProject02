@@ -1,9 +1,9 @@
-package cg.str;
+package cg.base.str;
 
 public class Test01 {
 	public static void main(String[] args) {
 
-		// showStrSub();
+		//showStrSub();
 		//getStr();
 
 		/*String ss = "";
@@ -16,11 +16,7 @@ public class Test01 {
 			System.out.println("111"+split[i]); 
 		}*/
 
-		Double payprice = 10000d;
-		Double paypriceVal = payprice == null? 0.0d :payprice;
 		
-		
-		System.out.println(paypriceVal);
 	}
 	/**
 	 * String 类型的转化
@@ -35,7 +31,8 @@ public class Test01 {
 	private static void showStrSub() {
 		String reachStationName  = "河北市西二旗站";
 		System.out.println("reachStationName 01::"+ reachStationName);
-		reachStationName= reachStationName.substring(reachStationName.indexOf("市") + 1);
+		// substring(index); 返回 index 后边的所有的字符串
+ 		reachStationName= reachStationName.substring(reachStationName.indexOf("市") + 1);
 		System.out.println(reachStationName);
 	}
 

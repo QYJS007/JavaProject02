@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import utils.pdf.BasePdfPCell;
 
 import com.lowagie.text.Cell;
 import com.lowagie.text.Chunk;
@@ -63,7 +62,10 @@ public class A_bus365 {
 		}
 		pageSize = PageSize.A4.rotate();
 		Document doc = new Document(pageSize);
-		String title = "bus365";
+		
+		
+		
+		String title = "3652322332";
 		//		创建要返回的文件
 		String path = "D:/AAA/";
 		String tempFileName = System.currentTimeMillis()+"_"+"bus365"+".pdf";
@@ -94,7 +96,7 @@ public class A_bus365 {
 			cell11.setBorder(0);
 			// String imagePath = "D:/alibaba.jpg";
 			// Image image1 = Image.getInstance(imagePath); 
-			Image img = Image.getInstance("src/image/bus365.jpg");
+			Image img = Image.getInstance("src/image/122_119.png");
 
 			// Image image2 = Image.getInstance(imagePath); 
 			//设置每列宽度比例   
@@ -118,7 +120,7 @@ public class A_bus365 {
 			//Font FontChinese = new Font(bfChinese, 12, Font.NORMAL); 正常字体 ; 
 
 			Font fontCN = new Font(bfChinese, 20,Font.BOLD);// 加粗字体
-			Paragraph paragraph = new Paragraph("Bus365—行程单", fontCN);
+			Paragraph paragraph = new Paragraph("3651313", fontCN);
 
 			paragraph.setAlignment(Cell.ALIGN_CENTER);
 			doc.add(paragraph);
