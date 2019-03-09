@@ -16,14 +16,14 @@ import javax.mail.internet.MimeUtility;
 
 public class Mail01 {
 	//发件人地址
-	public static String senderAddress = "sq256123@163.com";
+	public static String senderAddress = "845504836@qq.com";
 
 	//发件人账户名
-	public static String senderAccount = "sq256123@163.com";
+	public static String senderAccount = "845504836@qq.com";
 	//发件人账户密码
-	public static String senderPassword = "bus365";
+	public static String senderPassword = "sq657892";
 	//收件人地址
-	public static String recipientAddress = "845504836@qq.com";
+	public static String recipientAddress = "sq256123@163.com";
 
 	public static void main(String[] args) throws Exception {
 		//1、连接邮件服务器的参数配置
