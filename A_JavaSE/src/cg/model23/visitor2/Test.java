@@ -18,7 +18,6 @@ public class Test {
 
 		lunchbox.Accept(new NormalVisitor());
 		
-		File file = new File("");
 		
 		
 	}

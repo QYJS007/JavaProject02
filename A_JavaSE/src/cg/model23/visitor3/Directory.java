@@ -43,6 +43,8 @@ public class Directory extends Entry {
 			entry.printList(prefix+"/"+name);
 		}
 	}
+	// 接受访问
+	
 	public void accept(Visitor visitor) {
 		//  System.out.println("开始访问文件夹:"+this);
 		visitor.visit(this);
