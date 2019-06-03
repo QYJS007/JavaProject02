@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 public class Regular {
 
-		/*		æŠ¤ç…§å·ç çš„æ ¼å¼ï¼šå› ç§æ™®é€šæŠ¤ç…§å·ç æ ¼å¼æœ‰:14/15+7ä½æ•°,G+8ä½æ•°ï¼›å› å…¬æ™®é€šçš„æ˜¯:P.+7ä½æ•°ï¼›å…¬åŠ¡çš„æ˜¯ï¼šS.+7ä½æ•° æˆ–è€… S+8ä½æ•°,ä»¥Då¼€å¤´çš„æ˜¯å¤–äº¤æŠ¤ç…§.
+		/*		»¤ÕÕºÅÂëµÄ¸ñÊ½£ºÒòË½ÆÕÍ¨»¤ÕÕºÅÂë¸ñÊ½ÓĞ:14/15+7Î»Êı,G+8Î»Êı£»Òò¹«ÆÕÍ¨µÄÊÇ:P.+7Î»Êı£»¹«ÎñµÄÊÇ£ºS.+7Î»Êı »òÕß S+8Î»Êı,ÒÔD¿ªÍ·µÄÊÇÍâ½»»¤ÕÕ.
 		 * 
 		 * D=diplomatic^1[45][0-9]{7}|G[0-9]{8}|P[0-9]{7}|S[0-9]{7,8}|D[0-9]+$
 		 */	
@@ -23,28 +23,28 @@ public class Regular {
 	
 
 
-	/** åè½¬å­—ç¬¦ä¸²(å¦‚ï¼šabcdefåè½¬åä¸ºfedcba)  */
+	/** ·´×ª×Ö·û´®(Èç£ºabcdef·´×ªºóÎªfedcba)  */
 	public static String reverseString(String str){
 		if(str.length()==0) return str;
 		return reverseString(str.substring(1)) + str.charAt(0) ;
 	}
 	
 	public static void show(){
-		 // å®šä¹‰å­—ç¬¦ä¸²
+		 // ¶¨Òå×Ö·û´®
         String s = "da jia ting wo shuo,jin tian yao xia yu,bu shang wan zi xi,gao xing bu?";
-        // è§„åˆ™ \\bè¡¨ç¤ºå•è¯è¾¹ç•Œï¼Œè¾¹ç•Œä¸å…è®¸å‡ºç°å•è¯å­—ç¬¦
+        // ¹æÔò \\b±íÊ¾µ¥´Ê±ß½ç£¬±ß½ç²»ÔÊĞí³öÏÖµ¥´Ê×Ö·û
         String regex = "\\b\\w{3}\\b";
-        // æŠŠè§„åˆ™ç¼–è¯‘æˆæ¨¡å¼å¯¹è±¡
+        // °Ñ¹æÔò±àÒë³ÉÄ£Ê½¶ÔÏó
         Pattern p = Pattern.compile(regex);
-        // é€šè¿‡æ¨¡å¼å¯¹è±¡å¾—åˆ°åŒ¹é…å™¨å¯¹è±¡
+        // Í¨¹ıÄ£Ê½¶ÔÏóµÃµ½Æ¥ÅäÆ÷¶ÔÏó
         Matcher m = p.matcher(s);
-        // è°ƒç”¨åŒ¹é…å™¨å¯¹è±¡çš„åŠŸèƒ½
-        // é€šè¿‡findæ–¹æ³•å°±æ˜¯æŸ¥æ‰¾æœ‰æ²¡æœ‰æ»¡è¶³æ¡ä»¶çš„å­ä¸²
+        // µ÷ÓÃÆ¥ÅäÆ÷¶ÔÏóµÄ¹¦ÄÜ
+        // Í¨¹ıfind·½·¨¾ÍÊÇ²éÕÒÓĞÃ»ÓĞÂú×ãÌõ¼şµÄ×Ó´®
         // public boolean find()
         while (m.find()) {
             System.out.println(m.group());
         }
-        // æ³¨æ„ï¼šä¸€å®šè¦å…ˆfind()ï¼Œç„¶åæ‰èƒ½group()
+        // ×¢Òâ£ºÒ»¶¨ÒªÏÈfind()£¬È»ºó²ÅÄÜgroup()
         // IllegalStateException: No match found
         // String ss = m.group();
         // System.out.println(ss);
@@ -52,7 +52,7 @@ public class Regular {
 	}
 	private static void inputHZ() {
 		Scanner sc = new Scanner(System.in);
-		System.out.println("è¯·è¾“å…¥æ‚¨çš„HZå·ç ï¼š");
+		System.out.println("ÇëÊäÈëÄúµÄHZºÅÂë£º");
 		String str = sc.nextLine();
 		boolean f = checkHZ(str);
 		System.out.println("result:"+f);
@@ -66,7 +66,7 @@ public class Regular {
 	
 	private static void inputQQ() {
 		Scanner sc = new Scanner(System.in);
-		System.out.println("è¯·è¾“å…¥æ‚¨çš„QQå·ç ï¼š");
+		System.out.println("ÇëÊäÈëÄúµÄQQºÅÂë£º");
 		String str = sc.nextLine();
 		boolean f = queckQQ(str);
 		System.out.println("result:"+f);

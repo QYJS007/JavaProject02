@@ -23,7 +23,7 @@ public class Test01 {
 		System.out.println(paypriceVal);
 	}
 	/**
-	 * String ç±»åž‹çš„è½¬åŒ–
+	 * String ÀàÐÍµÄ×ª»¯
 	 */
 	private static void getStr() {
 		Object obj = null; 
@@ -33,9 +33,9 @@ public class Test01 {
 	}
 
 	private static void showStrSub() {
-		String reachStationName  = "æ²³åŒ—å¸‚è¥¿äºŒæ——ç«™";
+		String reachStationName  = "ºÓ±±ÊÐÎ÷¶þÆìÕ¾";
 		System.out.println("reachStationName 01::"+ reachStationName);
-		reachStationName= reachStationName.substring(reachStationName.indexOf("å¸‚") + 1);
+		reachStationName= reachStationName.substring(reachStationName.indexOf("ÊÐ") + 1);
 		System.out.println(reachStationName);
 	}
 
