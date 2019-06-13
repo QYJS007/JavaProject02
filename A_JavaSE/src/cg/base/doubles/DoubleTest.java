@@ -1,16 +1,17 @@
 package cg.base.doubles;
 
 public class DoubleTest {
-
+	
+	
 	public static void main(String[] args) {
 		//		compare(double d1, double d2) 
-		//        比较两个指定的 double 值。 
+		//        姣旇緝涓や釜鎸囧畾鐨� double 鍊笺�� 
 		//int compareTo(Double anotherDouble) 
 
 
 		// test01();
 		
-		// 代码优化； 
+		// 浠ｇ爜浼樺寲锛� 
 		Double payprice = 10000d;
 		Double paypriceVal = payprice == null? 0.0d :payprice;
 		 
