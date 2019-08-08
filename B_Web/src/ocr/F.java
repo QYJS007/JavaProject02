@@ -17,7 +17,7 @@ import org.json.JSONObject;
 public class F {
 	public static void main(String[] args) {
 		//获取本地的绝对路径图片
-		File file = new File("C:\\Users\\Administrator\\Desktop\\12343.jpg");
+		File file = new File("C:\\Users\\Administrator\\Desktop\\1234.png");
 		//进行BASE64位编码
 		String imageBase = BASE64.encodeImgageToBase64(file);
 		imageBase = imageBase.replaceAll("\r\n","");
