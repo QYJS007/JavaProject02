@@ -11,38 +11,38 @@ import org.json.JSONObject;
 import com.baidu.aip.ocr.AipOcr;
 
 public class BaiDu {
-	//ÉèÖÃAPPID/AK/SK
+	//è®¾ç½®APPID/AK/SK
 	public static final String APP_ID = "15916515";
 	public static final String API_KEY = "NnA1zs4neW1VzuWtvi2Ykn0c";
 	public static final String SECRET_KEY = "aeGoBSGtoNlGquwVHj2jAHDXGGxx0HB2";
 
 	public static void main(String[] args) {
-		// ³õÊ¼»¯Ò»¸öAipOcr
+		// åˆå§‹åŒ–ä¸€ä¸ªAipOcr
 		/*
-		 * AipOcrÊÇOptical Character RecognitionµÄJava¿Í»§¶Ë£¬
-		 * 	ÎªÊ¹ÓÃOptical Character RecognitionµÄ¿ª·¢ÈËÔ±Ìá¹©ÁËÒ»ÏµÁĞµÄ½»»¥·½·¨¡£
-		 * ÓÃ»§¿ÉÒÔ²Î¿¼ÈçÏÂ´úÂëĞÂ½¨Ò»¸öAipOcr,³õÊ¼»¯Íê³Éºó½¨Òéµ¥ÀıÊ¹ÓÃ,±ÜÃâÖØ¸´»ñÈ¡access_token£º
+		 * AipOcræ˜¯Optical Character Recognitionçš„Javaå®¢æˆ·ç«¯ï¼Œ
+		 * 	ä¸ºä½¿ç”¨Optical Character Recognitionçš„å¼€å‘äººå‘˜æä¾›äº†ä¸€ç³»åˆ—çš„äº¤äº’æ–¹æ³•ã€‚
+		 * ç”¨æˆ·å¯ä»¥å‚è€ƒå¦‚ä¸‹ä»£ç æ–°å»ºä¸€ä¸ªAipOcr,åˆå§‹åŒ–å®Œæˆåå»ºè®®å•ä¾‹ä½¿ç”¨,é¿å…é‡å¤è·å–access_tokenï¼š
 		 */
 		AipOcr client = new AipOcr(APP_ID, API_KEY, SECRET_KEY);
 
-		// ¿ÉÑ¡£ºÉèÖÃÍøÂçÁ¬½Ó²ÎÊı
+		// å¯é€‰ï¼šè®¾ç½®ç½‘ç»œè¿æ¥å‚æ•°
 		client.setConnectionTimeoutInMillis(2000);
 		client.setSocketTimeoutInMillis(60000);
 
-		// ¿ÉÑ¡£ºÉèÖÃ´úÀí·şÎñÆ÷µØÖ·, httpºÍsocket¶şÑ¡Ò»£¬»òÕß¾ù²»ÉèÖÃ
-		//client.setHttpProxy("proxy_host", proxy_port);  // ÉèÖÃhttp´úsÀí
-		//client.setSocketProxy("proxy_host", proxy_port);  // ÉèÖÃsocket´úÀí
+		// å¯é€‰ï¼šè®¾ç½®ä»£ç†æœåŠ¡å™¨åœ°å€, httpå’ŒsocketäºŒé€‰ä¸€ï¼Œæˆ–è€…å‡ä¸è®¾ç½®
+		//client.setHttpProxy("proxy_host", proxy_port);  // è®¾ç½®httpä»£sç†
+		//client.setSocketProxy("proxy_host", proxy_port);  // è®¾ç½®socketä»£ç†
 
-		// ¿ÉÑ¡£ºÉèÖÃlog4jÈÕÖ¾Êä³ö¸ñÊ½£¬Èô²»ÉèÖÃ£¬ÔòÊ¹ÓÃÄ¬ÈÏÅäÖÃ
-		// Ò²¿ÉÒÔÖ±½ÓÍ¨¹ıjvmÆô¶¯²ÎÊıÉèÖÃ´Ë»·¾³±äÁ¿
+		// å¯é€‰ï¼šè®¾ç½®log4jæ—¥å¿—è¾“å‡ºæ ¼å¼ï¼Œè‹¥ä¸è®¾ç½®ï¼Œåˆ™ä½¿ç”¨é»˜è®¤é…ç½®
+		// ä¹Ÿå¯ä»¥ç›´æ¥é€šè¿‡jvmå¯åŠ¨å‚æ•°è®¾ç½®æ­¤ç¯å¢ƒå˜é‡
 		//System.setProperty("aip.log4j.conf", "path/to/your/log4j.properties");
 
-		// µ÷ÓÃ½Ó¿Ú
+		// è°ƒç”¨æ¥å£
 		String path = "C:\\Users\\Administrator\\Desktop\\12343.jpg";
 		JSONObject res = client.basicGeneral(path, new HashMap<String, String>());
 		System.out.println(res.toString());
 
-		// ´«Èë¿ÉÑ¡²ÎÊıµ÷ÓÃ½Ó¿Ú
+		// ä¼ å…¥å¯é€‰å‚æ•°è°ƒç”¨æ¥å£
 		HashMap<String, String> options = new HashMap<String, String>();
 		options.put("language_type", "CHN_ENG");
 		options.put("detect_direction", "true");
@@ -50,17 +50,17 @@ public class BaiDu {
 		options.put("probability", "true");
 
 
-		// ²ÎÊıÎª±¾µØÂ·¾¶
+		// å‚æ•°ä¸ºæœ¬åœ°è·¯å¾„
 		/* String image = "test.jpg";
 	    JSONObject res = client.basicGeneral(image, options);
 	    System.out.println(res.toString(2));
 
-	    // ²ÎÊıÎª¶ş½øÖÆÊı×é
+	    // å‚æ•°ä¸ºäºŒè¿›åˆ¶æ•°ç»„
 	    byte[] file = readFile("test.jpg");
 	    res = client.basicGeneral(file, options);
 	    System.out.println(res.toString(2));
 
-	    // Í¨ÓÃÎÄ×ÖÊ¶±ğ, Í¼Æ¬²ÎÊıÎªÔ¶³ÌurlÍ¼Æ¬
+	    // é€šç”¨æ–‡å­—è¯†åˆ«, å›¾ç‰‡å‚æ•°ä¸ºè¿œç¨‹urlå›¾ç‰‡
 	    JSONObject res = client.basicGeneralUrl(url, options);
 	    System.out.println(res.toString(2));*/
 
@@ -69,7 +69,7 @@ public class BaiDu {
 
 
 	}
-	public static void sample(AipOcr client) {// ´«Èë¿ÉÑ¡²ÎÊıµ÷ÓÃ½Ó¿Ú
+	public static void sample(AipOcr client) {// ä¼ å…¥å¯é€‰å‚æ•°è°ƒç”¨æ¥å£
 		HashMap<String, String> options = new HashMap<String, String>();
 		options.put("detect_direction", "true");
 		options.put("detect_risk", "false");
@@ -77,22 +77,22 @@ public class BaiDu {
 		//	    String idCardSide = "back";
 		String idCardSide = "front";
 
-		// ²ÎÊıÎª±¾µØÂ·¾¶
+		// å‚æ•°ä¸ºæœ¬åœ°è·¯å¾„
 		/* String image = "C:\\Users\\Administrator\\Desktop\\1234.png";
 	    JSONObject res = client.idcard(image, idCardSide, options);
 	    System.out.println(res.toString(2));*/
 
-		// ²ÎÊıÎª¶ş½øÖÆÊı×é
+		// å‚æ•°ä¸ºäºŒè¿›åˆ¶æ•°ç»„
 		byte[] file = readFile(new File ("C:\\Users\\Administrator\\Desktop\\1234.png"));
 		JSONObject res = client.idcard(file, idCardSide, options);
 		System.out.println(res.toString(2));
 	}
 
 	public static byte[] readFile(File imageFile) {
-		// ½«Í¼Æ¬ÎÄ¼ş×ª»¯Îª×Ö½ÚÊı×é×Ö·û´®£¬²¢¶ÔÆä½øĞĞBase64±àÂë´¦Àí
-		// Æä½øĞĞBase64±àÂë´¦Àí
+		// å°†å›¾ç‰‡æ–‡ä»¶è½¬åŒ–ä¸ºå­—èŠ‚æ•°ç»„å­—ç¬¦ä¸²ï¼Œå¹¶å¯¹å…¶è¿›è¡ŒBase64ç¼–ç å¤„ç†
+		// å…¶è¿›è¡ŒBase64ç¼–ç å¤„ç†
 		byte[] data = null;
-		// ¶ÁÈ¡Í¼Æ¬×Ö½ÚÊı×é
+		// è¯»å–å›¾ç‰‡å­—èŠ‚æ•°ç»„
 		try {
 			InputStream in = new FileInputStream(imageFile);
 			data = new byte[in.available()];
@@ -101,9 +101,9 @@ public class BaiDu {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		// ¶Ô×Ö½ÚÊı×éBase64±àÂë
+		// å¯¹å­—èŠ‚æ•°ç»„Base64ç¼–ç 
 		//BASE64Encoder encoder = new BASE64Encoder();
-		//return encoder.encode(data);// ·µ»ØBase64±àÂë¹ıµÄ×Ö½ÚÊı×é×Ö·û´®.
+		//return encoder.encode(data);// è¿”å›Base64ç¼–ç è¿‡çš„å­—èŠ‚æ•°ç»„å­—ç¬¦ä¸².
 		// byte[] file = readFile("test.jpg");
 		return data;
 	}

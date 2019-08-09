@@ -1,8 +1,8 @@
 package cg.model23.visitor2;
 
 /**
- * ·¹
- * @author ÄÏ³Ç²İ
+ * é¥­
+ * @author å—åŸè‰
  *
  */
 public class Meal extends Element {
@@ -13,14 +13,14 @@ public class Meal extends Element {
 		this.price = price*weight;
 	}
 	public Meal() {
-		this.name = "·¹";
+		this.name = "é¥­";
 		this.price = 2;
 		this.weight = 1;
 	}
 
 	@Override
-	public void ¹©¸ø(Visitor visitor) {
-		visitor.Ñ¡²Ë(this);
+	public void ä¾›ç»™(Visitor visitor) {
+		visitor.é€‰èœ(this);
 	}
 
 }
@@ -28,8 +28,8 @@ public class Meal extends Element {
 
 
 /**
- * ÉÕÑ¼
- * @author ÄÏ³Ç²İ
+ * çƒ§é¸­
+ * @author å—åŸè‰
  *
  */
 class RoastDuck extends Element {
@@ -40,20 +40,20 @@ class RoastDuck extends Element {
         this.price = price*weight;
     }
     public RoastDuck() {
-        this.name = "ÉÕÑ¼";
+        this.name = "çƒ§é¸­";
         this.price = 8;
         this.weight = 1;
     }
 
     @Override
-    public void ¹©¸ø(Visitor visitor) {
-        visitor.Ñ¡²Ë(this);
+    public void ä¾›ç»™(Visitor visitor) {
+        visitor.é€‰èœ(this);
     }
 
 }
 /**
- * ¾íĞÄ²Ë
- * @author ÄÏ³Ç²İ
+ * å·å¿ƒèœ
+ * @author å—åŸè‰
  *
  */
  class Cabbage extends Element {
@@ -64,20 +64,20 @@ class RoastDuck extends Element {
         this.price = price*weight;
     }
     public Cabbage() {
-        this.name = "¾íĞÄ²Ë";
+        this.name = "å·å¿ƒèœ";
         this.price = 2;
         this.weight = 1;
     }
 
     @Override
-    public void ¹©¸ø(Visitor visitor) {
-        visitor.Ñ¡²Ë(this);
+    public void ä¾›ç»™(Visitor visitor) {
+        visitor.é€‰èœ(this);
     }
 
 }
  /**
-  * ²æÉÕ
-  * @author ÄÏ³Ç²İ
+  * å‰çƒ§
+  * @author å—åŸè‰
   *
   */
 class RoastPork extends Element {
@@ -88,22 +88,22 @@ class RoastPork extends Element {
          this.price = price*weight;
      }
      public RoastPork() {
-         this.name = "²æÉÕ";
+         this.name = "å‰çƒ§";
          this.price = 8;
          this.weight = 1;
      }
 
      @Override
-     public void ¹©¸ø(Visitor visitor) {
-         visitor.Ñ¡²Ë(this);
+     public void ä¾›ç»™(Visitor visitor) {
+         visitor.é€‰èœ(this);
      }
 
  }
 
 
 /**
- * ÌÀ
- * @author ÄÏ³Ç²İ
+ * æ±¤
+ * @author å—åŸè‰
  *
  */
 class Soup extends Element {
@@ -114,14 +114,14 @@ class Soup extends Element {
         this.price = price*weight;
     }
     public Soup() {
-        this.name = "ÌÀ";
+        this.name = "æ±¤";
         this.price = 3;
         this.weight = 1;
     }
 
     @Override
-    public void ¹©¸ø(Visitor visitor) {
-        visitor.Ñ¡²Ë(this);
+    public void ä¾›ç»™(Visitor visitor) {
+        visitor.é€‰èœ(this);
     }
 
 }

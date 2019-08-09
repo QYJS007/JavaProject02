@@ -16,20 +16,20 @@ import org.json.JSONObject;
 
 public class F {
 	public static void main(String[] args) {
-		//»ñÈ¡±¾µØµÄ¾ø¶ÔÂ·¾¶Í¼Æ¬
+		//è·å–æœ¬åœ°çš„ç»å¯¹è·¯å¾„å›¾ç‰‡
 		File file = new File("C:\\Users\\Administrator\\Desktop\\1234.png");
-		//½øĞĞBASE64Î»±àÂë
+		//è¿›è¡ŒBASE64ä½ç¼–ç 
 		String imageBase = BASE64.encodeImgageToBase64(file);
 		imageBase = imageBase.replaceAll("\r\n","");
 		imageBase = imageBase.replaceAll("\\+","%2B");
 		long t1 = System.currentTimeMillis();
 		//System.out.println(System.currentTimeMillis());
 		
-		//°Ù¶ÈÔÆµÄÎÄ×ÖÊ¶±ğ½Ó¿Ú,ºóÃæ²ÎÊıÎª»ñÈ¡µ½µÄtoken
+		//ç™¾åº¦äº‘çš„æ–‡å­—è¯†åˆ«æ¥å£,åé¢å‚æ•°ä¸ºè·å–åˆ°çš„token
 		String httpUrl=" https://aip.baidubce.com/rest/2.0/ocr/v1/idcard?access_token="+baiduOcr.getAuth();
 		String httpArg = "detect_direction=true&id_card_side=front&image="+imageBase;
 		String jsonResult = request(httpUrl, httpArg);
-		System.out.println("·µ»ØµÄ½á¹û--------->"+jsonResult);
+		System.out.println("è¿”å›çš„ç»“æœ--------->"+jsonResult);
 		HashMap<String, String> map = getHashMapByJson(jsonResult);
 		Collection<String> values=map.values();
 		Iterator<String> iterator2=values.iterator();
@@ -45,7 +45,7 @@ public class F {
 		
 		
 		long t2 = System.currentTimeMillis();
-		System.out.println("ÓÃÊ±£º"+(t2-t1)/1000+ "Ãë");
+		System.out.println("ç”¨æ—¶ï¼š"+(t2-t1)/1000+ "ç§’");
 	}
 
 	public static String request(String httpUrl, String httpArg) {
@@ -53,17 +53,17 @@ public class F {
 		String result = null;
 		StringBuffer sbf = new StringBuffer();
 		try {
-			//ÓÃjava JDK×Ô´øµÄURLÈ¥ÇëÇó
+			//ç”¨java JDKè‡ªå¸¦çš„URLå»è¯·æ±‚
 			URL url = new URL(httpUrl);
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-			//ÉèÖÃ¸ÃÇëÇóµÄÏûÏ¢Í·
-			//ÉèÖÃHTTP·½·¨£ºPOST
+			//è®¾ç½®è¯¥è¯·æ±‚çš„æ¶ˆæ¯å¤´
+			//è®¾ç½®HTTPæ–¹æ³•ï¼šPOST
 			connection.setRequestMethod("POST");
-			//ÉèÖÃÆäHeaderµÄContent-Type²ÎÊıÎªapplication/x-www-form-urlencoded
+			//è®¾ç½®å…¶Headerçš„Content-Typeå‚æ•°ä¸ºapplication/x-www-form-urlencoded
 			connection.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
-			// ÌîÈëapikeyµ½HTTP header
+			// å¡«å…¥apikeyåˆ°HTTP header
 			connection.setRequestProperty("apikey", "uml8HFzu2hFd8iEG2LkQGMxm");
-			//½«µÚ¶ş²½»ñÈ¡µ½µÄtokenÌîÈëµ½HTTP header
+			//å°†ç¬¬äºŒæ­¥è·å–åˆ°çš„tokenå¡«å…¥åˆ°HTTP header
 			connection.setRequestProperty("access_token", baiduOcr.getAuth());
 			connection.setDoOutput(true);
 			connection.getOutputStream().write(httpArg.getBytes("UTF-8"));
@@ -96,22 +96,22 @@ public class F {
 				JSONObject result = words_result.getJSONObject(key);
 				String value=result.getString("words");
 				switch (key){
-				case "ĞÕÃû":
+				case "å§“å":
 					map.put("name",value);
 					break;
-				case "Ãñ×å":
+				case "æ°‘æ—":
 					map.put("nation",value);
 					break;
-				case "×¡Ö·":
+				case "ä½å€":
 					map.put("address",value);
 					break;
-				case "¹«ÃñÉí·İºÅÂë":
+				case "å…¬æ°‘èº«ä»½å·ç ":
 					map.put("IDCard",value);
 					break;
-				case "³öÉú":
+				case "å‡ºç”Ÿ":
 					map.put("Birth",value);
 					break;
-				case "ĞÔ±ğ":
+				case "æ€§åˆ«":
 					map.put("sex",value);
 					break;
 				}

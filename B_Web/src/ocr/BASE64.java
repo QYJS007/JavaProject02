@@ -13,17 +13,17 @@ import sun.misc.BASE64Encoder;
 //import sun.misc.BASE64Encoder;
 public class BASE64 {
 	/**
-	 * ½«±¾µØÍ¼Æ¬½øĞĞBase64Î»±àÂë
+	 * å°†æœ¬åœ°å›¾ç‰‡è¿›è¡ŒBase64ä½ç¼–ç 
 	 *
 	 * @param imgUrl
-	 * Í¼Æ¬µÄurlÂ·¾¶£¬Èçe:\\123.png
+	 * å›¾ç‰‡çš„urlè·¯å¾„ï¼Œå¦‚e:\\123.png
 	 * @return
 	 */
 	public static String encodeImgageToBase64(File imageFile) {
-		// ½«Í¼Æ¬ÎÄ¼ş×ª»¯Îª×Ö½ÚÊı×é×Ö·û´®£¬²¢¶ÔÆä½øĞĞBase64±àÂë´¦Àí
-		// Æä½øĞĞBase64±àÂë´¦Àí
+		// å°†å›¾ç‰‡æ–‡ä»¶è½¬åŒ–ä¸ºå­—èŠ‚æ•°ç»„å­—ç¬¦ä¸²ï¼Œå¹¶å¯¹å…¶è¿›è¡ŒBase64ç¼–ç å¤„ç†
+		// å…¶è¿›è¡ŒBase64ç¼–ç å¤„ç†
 		byte[] data = null;
-		// ¶ÁÈ¡Í¼Æ¬×Ö½ÚÊı×é
+		// è¯»å–å›¾ç‰‡å­—èŠ‚æ•°ç»„
 		try {
 			InputStream in = new FileInputStream(imageFile);
 			data = new byte[in.available()];
@@ -32,9 +32,9 @@ public class BASE64 {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		// ¶Ô×Ö½ÚÊı×éBase64±àÂë
+		// å¯¹å­—èŠ‚æ•°ç»„Base64ç¼–ç 
 		BASE64Encoder encoder = new BASE64Encoder();
-		return encoder.encode(data);// ·µ»ØBase64±àÂë¹ıµÄ×Ö½ÚÊı×é×Ö·û´®
+		return encoder.encode(data);// è¿”å›Base64ç¼–ç è¿‡çš„å­—èŠ‚æ•°ç»„å­—ç¬¦ä¸²
 	}
 
 
@@ -43,19 +43,19 @@ public class BASE64 {
 		String result = null;
 		StringBuffer sbf = new StringBuffer();
 		try {
-			//ÓÃjava JDK×Ô´øµÄURLÈ¥ÇëÇó
+			//ç”¨java JDKè‡ªå¸¦çš„URLå»è¯·æ±‚
 			URL url = new URL(httpUrl);
 			HttpURLConnection connection = (HttpURLConnection) url
 					.openConnection();
-			//ÉèÖÃ¸ÃÇëÇóµÄÏûÏ¢Í·
-			//ÉèÖÃHTTP·½·¨£ºPOST
+			//è®¾ç½®è¯¥è¯·æ±‚çš„æ¶ˆæ¯å¤´
+			//è®¾ç½®HTTPæ–¹æ³•ï¼šPOST
 			connection.setRequestMethod("POST");
-			//ÉèÖÃÆäHeaderµÄContent-Type²ÎÊıÎªapplication/x-www-form-urlencoded
+			//è®¾ç½®å…¶Headerçš„Content-Typeå‚æ•°ä¸ºapplication/x-www-form-urlencoded
 			connection.setRequestProperty("Content-Type",
 					"application/x-www-form-urlencoded");
-			// ÌîÈëapikeyµ½HTTP header
+			// å¡«å…¥apikeyåˆ°HTTP header
 			connection.setRequestProperty("apikey", "uml8HFzu2hFd8iEG2LkQGMxm");
-			//½«µÚ¶ş²½»ñÈ¡µ½µÄtokenÌîÈëµ½HTTP header
+			//å°†ç¬¬äºŒæ­¥è·å–åˆ°çš„tokenå¡«å…¥åˆ°HTTP header
 			connection.setRequestProperty("access_token", baiduOcr.getAuth());
 			connection.setDoOutput(true);
 			connection.getOutputStream().write(httpArg.getBytes("UTF-8"));

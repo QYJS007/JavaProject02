@@ -1,15 +1,15 @@
 package cg.model23.visitor2;
 /**
- * ÆÕÍ¨¿Í»§
- * @author ÄÏ³Ç²İ
+ * æ™®é€šå®¢æˆ·
+ * @author å—åŸè‰
  *
  */
 public class NormalVisitor implements Visitor {
 
 	@Override
-	public void Ñ¡²Ë(Element element) {
+	public void é€‰èœ(Element element) {
 		Element food = ((Element) element);
-		System.out.println(food.getName() +food.getWeight()+ "·İ!");
+		System.out.println(food.getName() +food.getWeight()+ "ä»½!");
 	}
 
 }

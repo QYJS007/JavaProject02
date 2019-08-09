@@ -11,12 +11,12 @@ import org.json.JSONObject;
 
 
 /**
- * °Ù¶ÈÎÄ×ÖÊ¶±ğdemo
+ * ç™¾åº¦æ–‡å­—è¯†åˆ«demo
  */
 public class baiduOcr {
 	/**
-	 * »ñÈ¡È¨ÏŞtoken
-	 * @return ·µ»ØÊ¾Àı£º
+	 * è·å–æƒé™token
+	 * @return è¿”å›ç¤ºä¾‹ï¼š
 	 * {
 	 * "access_token": "24.c9303e47f0729c40f2bc2be6f8f3d589.2592000.1530936208.282335-
 		1234567",
@@ -25,9 +25,9 @@ public class baiduOcr {
 	 */
 	
 	public static String getAuth() {
-		// ¹ÙÍø»ñÈ¡µÄ API Key
+		// å®˜ç½‘è·å–çš„ API Key
 		String clientId = "NnA1zs4neW1VzuWtvi2Ykn0c";
-		// ¹ÙÍø»ñÈ¡µÄ Secret Key
+		// å®˜ç½‘è·å–çš„ Secret Key
 		String clientSecret = "aeGoBSGtoNlGquwVHj2jAHDXGGxx0HB2";
 		return getAuth(clientId, clientSecret);
 	}
@@ -35,33 +35,33 @@ public class baiduOcr {
 	
 	
 	/**
-	 * »ñÈ¡API·ÃÎÊtoken
-	 * ¸ÃtokenÓĞÒ»¶¨µÄÓĞĞ§ÆÚ£¬ĞèÒª×ÔĞĞ¹ÜÀí£¬µ±Ê§Ğ§Ê±ĞèÖØĞÂ»ñÈ¡.
-	 * @param ak - °Ù¶ÈÔÆµÄ API Key
-	 * @param sk - °Ù¶ÈÔÆµÄ Securet Key
-	 * @return assess_token Ê¾Àı£º
+	 * è·å–APIè®¿é—®token
+	 * è¯¥tokenæœ‰ä¸€å®šçš„æœ‰æ•ˆæœŸï¼Œéœ€è¦è‡ªè¡Œç®¡ç†ï¼Œå½“å¤±æ•ˆæ—¶éœ€é‡æ–°è·å–.
+	 * @param ak - ç™¾åº¦äº‘çš„ API Key
+	 * @param sk - ç™¾åº¦äº‘çš„ Securet Key
+	 * @return assess_token ç¤ºä¾‹ï¼š
 	 * "24.c9303e47f0729c40f2bc2be6f8f3d589.2592000.1530936208.282335-1234567"
 	 */
 	@SuppressWarnings("unused")
 	public static String getAuth(String ak, String sk) {
-		// »ñÈ¡tokenµØÖ·
+		// è·å–tokenåœ°å€
 		String authHost = "https://aip.baidubce.com/oauth/2.0/token?";
 		String getAccessTokenUrl = authHost
-				// 1. grant_typeÎª¹Ì¶¨²ÎÊı
+				// 1. grant_typeä¸ºå›ºå®šå‚æ•°
 				+ "grant_type=client_credentials"
-				// 2. ¹ÙÍø»ñÈ¡µÄ API Key
+				// 2. å®˜ç½‘è·å–çš„ API Key
 				+ "&client_id=" + ak
-				// 3. ¹ÙÍø»ñÈ¡µÄ Secret Key
+				// 3. å®˜ç½‘è·å–çš„ Secret Key
 				+ "&client_secret=" + sk;
 		try {
 			URL realUrl = new URL(getAccessTokenUrl);
-			// ´ò¿ªºÍURLÖ®¼äµÄÁ¬½Ó
+			// æ‰“å¼€å’ŒURLä¹‹é—´çš„è¿æ¥
 			HttpURLConnection connection = (HttpURLConnection) realUrl.openConnection();
-			connection.setRequestMethod("POST");//°Ù¶ÈÍÆ¼öÊ¹ÓÃPOSTÇëÇó
+			connection.setRequestMethod("POST");//ç™¾åº¦æ¨èä½¿ç”¨POSTè¯·æ±‚
 			connection.connect();
-			// »ñÈ¡ËùÓĞÏìÓ¦Í·×Ö¶Î
+			// è·å–æ‰€æœ‰å“åº”å¤´å­—æ®µ
 			Map<String, List<String>> map = connection.getHeaderFields();
-			// ¶¨Òå BufferedReaderÊäÈëÁ÷À´¶ÁÈ¡URLµÄÏìÓ¦
+			// å®šä¹‰ BufferedReaderè¾“å…¥æµæ¥è¯»å–URLçš„å“åº”
 			BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			String result = "";
 			String line;
@@ -73,7 +73,7 @@ public class baiduOcr {
 			String access_token = jsonObject.getString("access_token");
 			return access_token;
 		} catch (Exception e) {
-			System.err.printf("»ñÈ¡tokenÊ§°Ü£¡");
+			System.err.printf("è·å–tokenå¤±è´¥ï¼");
 			e.printStackTrace(System.err);
 		}
 		return null;
