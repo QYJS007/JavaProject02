@@ -5,6 +5,10 @@
 # Home page
 GET     /                                       Application.index
 
+GET 	/testdubbo									TestAction.dubboTest
+GET 	/testscheduling								TestAction.getRouteListByOrgcode
+GET 	/testscheduling								TestAction.getRouteListByOrgcode
+
 # Ignore favicon requests
 GET     /favicon.ico                            404
 
