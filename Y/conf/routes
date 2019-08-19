@@ -8,7 +8,10 @@ GET     /                                       Application.index
 GET 	/testdubbo									TestAction.dubboTest
 GET 	/testscheduling								TestAction.getRouteListByOrgcode
 GET 	/testscheduling								TestAction.getRouteListByOrgcode
+GET 	/getroute									TestAction.getRoute
 
+
+GET 	/imgs								LoginAction.showimgs
 # Ignore favicon requests
 GET     /favicon.ico                            404
 

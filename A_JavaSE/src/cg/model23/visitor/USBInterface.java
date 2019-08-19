@@ -1,10 +1,10 @@
 package cg.model23.visitor;
 
-/*把上面的框架包封装起来，因为访问者模式要求，结构不能变化，只能变化数据操作上。
+/*锟斤拷锟斤拷锟斤拷目锟杰帮拷锟斤拷装锟斤拷锟斤拷锟斤拷锟斤拷为锟斤拷锟斤拷锟斤拷模式要锟襟，结构锟斤拷锟杰变化锟斤拷只锟杰变化锟斤拷锟捷诧拷锟斤拷锟较★拷
 
  */
 /**
- * 自定义的接口，实现了硬件接口的借口类
+ * 锟皆讹拷锟斤拷慕涌冢锟绞碉拷锟斤拷锟接诧拷锟斤拷涌诘慕锟斤拷锟斤拷
  * @author wangXgnaw
  *
  */
@@ -12,17 +12,17 @@ public class USBInterface implements HardwareInterface {
 
 	@Override
 	public void visitor(CPU cpu) {
-		System.out.println("usb连接cpu");
+		System.out.println("usb锟斤拷锟斤拷cpu");
 	}
 
 	@Override
 	public void visitor(VideoCard vCard) {
-		System.out.println("用usb连接显卡");
+		System.out.println("锟斤拷usb锟斤拷锟斤拷锟皆匡拷");
 	}
 
 	@Override
 	public void visitor(HardDisk hd) {
-		System.out.println("用usb连接硬盘");
+		System.out.println("锟斤拷usb锟斤拷锟斤拷硬锟斤拷");
 	}
 
 }

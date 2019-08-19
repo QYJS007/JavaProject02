@@ -2,14 +2,14 @@ package cg.model23.visitor;
 
 
 /**
- * µçÄÔµÄÁãÅä¼şµÄ¸¸³éÏóÀà
+ * ç”µè„‘çš„é›¶é…ä»¶çš„çˆ¶æŠ½è±¡ç±»
  * @author wangXgnaw
  *
  */
 public abstract class ComputerPart {
     
     /**
-     * ËùÓĞµÄ ÁãÅä¼ş£¬¶¼±ØĞëÍ¨¹ıÒ»¸öÓ²¼ş½Ó¿Ú½øĞĞÁ¬½Ó
+     * æ‰€æœ‰çš„ é›¶é…ä»¶ï¼Œéƒ½å¿…é¡»é€šè¿‡ä¸€ä¸ªç¡¬ä»¶æ¥å£è¿›è¡Œè¿æ¥
      * @param hardwareInterface
      */
     protected abstract void link(HardwareInterface hardwareInterface);
@@ -17,7 +17,7 @@ public abstract class ComputerPart {
 }
 
 /**
- * µçÄÔµÄÓ²¼şCPU£¬ÓÃÓÚÊı¾İµÄÔËËã
+ * ç”µè„‘çš„ç¡¬ä»¶CPUï¼Œç”¨äºæ•°æ®çš„è¿ç®—
  * 
  * @author wangXgnaw
  *
@@ -25,16 +25,16 @@ public abstract class ComputerPart {
  class CPU extends ComputerPart {
     @Override
     protected void link(HardwareInterface hardwareInterface) {
-        // ÏÈµÃÍ¨¹ı½Ó¿ÚÁ¬½ÓÊı¾İ
+        // å…ˆå¾—é€šè¿‡æ¥å£è¿æ¥æ•°æ®
         hardwareInterface.visitor(this);
-        // Á¬½ÓÍêÁËÖ®ºó£¬¾Í¿ªÊ¼Ê¹ÓÃcpu
-        System.out.println("Á¬½ÓÉÏÁËÖ®ºó£¬ÀûÓÃcpu½øĞĞ¼ÆËãÊı¾İ");
+        // è¿æ¥å®Œäº†ä¹‹åï¼Œå°±å¼€å§‹ä½¿ç”¨cpu
+        System.out.println("è¿æ¥ä¸Šäº†ä¹‹åï¼Œåˆ©ç”¨cpuè¿›è¡Œè®¡ç®—æ•°æ®");
     }
 
 }
 
  /**
-  * µçÄÔÓ²¼şÖ®ÏÔ¿¨ Í¨¹ıÏÔ¿¨¿ÉÒÔ½øĞĞµçÄÔµÄÆÁÄ»Í¼ÏñµÄÏÔÊ¾
+  * ç”µè„‘ç¡¬ä»¶ä¹‹æ˜¾å¡ é€šè¿‡æ˜¾å¡å¯ä»¥è¿›è¡Œç”µè„‘çš„å±å¹•å›¾åƒçš„æ˜¾ç¤º
   * 
   * @author wangXgnaw
   *
@@ -42,25 +42,25 @@ public abstract class ComputerPart {
  class VideoCard extends ComputerPart {
      @Override
      protected void link(HardwareInterface hardwareInterface) {
-         // ±ØĞëÏÈÓÃ½Ó¿ÚÁ¬½ÓÉÏÏÔ¿¨
+         // å¿…é¡»å…ˆç”¨æ¥å£è¿æ¥ä¸Šæ˜¾å¡
          hardwareInterface.visitor(this);
-         System.out.println("Á¬½ÓÉÏÏÔ¿¨Ö®ºó£¬ÏÔ¿¨¿ªÊ¼¹¤×÷£¬Ìá¹©Í¼Ïñ");
+         System.out.println("è¿æ¥ä¸Šæ˜¾å¡ä¹‹åï¼Œæ˜¾å¡å¼€å§‹å·¥ä½œï¼Œæä¾›å›¾åƒ");
      }
  }
  
  
  /**
-  * µçÄÔÓ²¼şÖ®Ó²ÅÌ
+  * ç”µè„‘ç¡¬ä»¶ä¹‹ç¡¬ç›˜
   * @author wangXgnaw
   *
   */
  class HardDisk extends ComputerPart {
      @Override
      protected void link(HardwareInterface hardwareInterface) {
-         // ±ØĞëÏÈÍ¨¹ı½Ó¿Ú£¬°ÑÓ²ÅÌÏÈÁ¬ÉÏ£¬È»ºó²ÅÄÜ²Ù×÷
+         // å¿…é¡»å…ˆé€šè¿‡æ¥å£ï¼ŒæŠŠç¡¬ç›˜å…ˆè¿ä¸Šï¼Œç„¶åæ‰èƒ½æ“ä½œ
          hardwareInterface.visitor(this);
-         // Ó²ÅÌ¿ªÊ¼¸É»î
-         System.out.println("Ó²ÅÌÒÔ¼°Á¬½ÓÉÏÁË£¬¿ªÊ¼´æ´¢Êı¾İ");
+         // ç¡¬ç›˜å¼€å§‹å¹²æ´»
+         System.out.println("ç¡¬ç›˜ä»¥åŠè¿æ¥ä¸Šäº†ï¼Œå¼€å§‹å­˜å‚¨æ•°æ®");
      }
 
  }
@@ -68,20 +68,20 @@ public abstract class ComputerPart {
  
  
  /**
-  * µçÄÔµÄÀà£¬µ±ĞèÒª×°»úµÄ»°£¬¾ÍÏÈ×¼±¸ºÃÓ²¼ş£¬¼´new³öÀ´£¬È»ºó²åÉÏ½Ó¿Ú
+  * ç”µè„‘çš„ç±»ï¼Œå½“éœ€è¦è£…æœºçš„è¯ï¼Œå°±å…ˆå‡†å¤‡å¥½ç¡¬ä»¶ï¼Œå³newå‡ºæ¥ï¼Œç„¶åæ’ä¸Šæ¥å£
   * @author wangXgnaw
   */
  class Computer {
      /**
-      * Ïë×°»ú£¬ÏÈµÃÌá¹©Ó²¼ş½Ó¿Ú²ÅĞĞ
+      * æƒ³è£…æœºï¼Œå…ˆå¾—æä¾›ç¡¬ä»¶æ¥å£æ‰è¡Œ
       * @param hardwareInterface
       */
      public void useComputer(HardwareInterface hardwareInterface){
-         //Í¨¹ı½Ó¿Ú£¬Á¬½Ócpu
+         //é€šè¿‡æ¥å£ï¼Œè¿æ¥cpu
          new CPU().link(hardwareInterface);
-         //Í¨¹ı½Ó¿Ú£¬Á¬½ÓÏÔ¿¨
+         //é€šè¿‡æ¥å£ï¼Œè¿æ¥æ˜¾å¡
          new VideoCard().link(hardwareInterface);
-         //Í¨¹ı½Ó¿ÚÁ¬½ÓÓ²ÅÌ
+         //é€šè¿‡æ¥å£è¿æ¥ç¡¬ç›˜
          new HardDisk().link(hardwareInterface);
          
      }

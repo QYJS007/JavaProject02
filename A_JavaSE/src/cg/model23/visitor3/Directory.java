@@ -43,12 +43,12 @@ public class Directory extends Entry {
 			entry.printList(prefix+"/"+name);
 		}
 	}
-	// ½ÓÊÜ·ÃÎÊ
+	// æ¥å—è®¿é—®
 	
 	public void accept(Visitor visitor) {
-		//  System.out.println("¿ªÊ¼·ÃÎÊÎÄ¼ş¼Ğ:"+this);
+		//  System.out.println("å¼€å§‹è®¿é—®æ–‡ä»¶å¤¹:"+this);
 		visitor.visit(this);
-		//   System.out.println("½áÊø·ÃÎÊÎÄ¼ş¼Ğ:"+this);
+		//   System.out.println("ç»“æŸè®¿é—®æ–‡ä»¶å¤¹:"+this);
 		//   System.out.println();
 	}
 

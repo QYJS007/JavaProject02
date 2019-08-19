@@ -21,7 +21,7 @@ public class AdapterTest {
 　　				详见下方实例：我们以ps2与usb的转接为例
 
 		 */
-// Ps2 接口 使用 usb 接口
+		// Ps2 接口 使用 usb 接口
 		Ps2 p = new Adapter();
 		p.isPs2();
 

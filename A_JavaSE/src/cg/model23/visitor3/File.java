@@ -23,9 +23,9 @@ public class File extends Entry {
 		System.out.println(prefix+"/"+this);
 	}
 	public void accept(Visitor visitor) {
-		//  System.out.println("¿ªÊ¼·ÃÎÊÎÄ¼ş:"+this);
+		//  System.out.println("å¼€å§‹è®¿é—®æ–‡ä»¶:"+this);
 		visitor.visit(this);
-		// System.out.println("½áÊø·ÃÎÊÎÄ¼ş:"+this);
+		// System.out.println("ç»“æŸè®¿é—®æ–‡ä»¶:"+this);
 		// System.out.println();
 	}
 

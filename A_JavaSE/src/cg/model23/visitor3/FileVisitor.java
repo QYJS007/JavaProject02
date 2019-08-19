@@ -20,7 +20,6 @@ public class FileVisitor extends Visitor {
 			files.add(currentDir+"/"+file);
 		}
 	}
-
 	public void visit(Directory directory) {
 		String saveDir=currentDir;
 		currentDir+=("/"+directory.getName());
@@ -31,7 +30,6 @@ public class FileVisitor extends Visitor {
 		}
 		currentDir=saveDir;
 	}
-	
 	Iterator getFiles(){
 		return files.iterator();
 	}
