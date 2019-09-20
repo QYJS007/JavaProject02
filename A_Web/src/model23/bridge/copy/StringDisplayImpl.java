@@ -32,6 +32,5 @@ public class StringDisplayImpl extends DisplayImpl{
 		}
 		System.out.println("+");
 
-
 	}
 }

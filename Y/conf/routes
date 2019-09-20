@@ -7,8 +7,9 @@ GET     /                                       Application.index
 
 GET 	/testdubbo									TestAction.dubboTest
 GET 	/testscheduling								TestAction.getRouteListByOrgcode
-GET 	/testscheduling								TestAction.getRouteListByOrgcode
+GET 	/testsd 							TestAction.testsd
 GET 	/getroute									TestAction.getRoute
+GET 	/pullMileInfo									TestAction.pullMileInfo
 
 
 GET 	/imgs								LoginAction.showimgs

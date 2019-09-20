@@ -1,4 +1,4 @@
-package cg.enums.singleton;
+package cg.model23.create.singleton;
 
 /*public class AA {
 
