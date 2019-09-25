@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>sssweb-模板代码生成</title>
+        <meta charset="utf-8">
+        <style>
+        	body { margin:0; font-family:Simsun;}
+        	.content { width:950px; height:500px; border:1px solid; margin:0 auto; padding:15px 45px;}
+        	select{ width:302px; height:20px; }
+        	.text { width:280px; height:20px; }
+        	.div1 { width:460px; height:495px; float:left;}
+        	.textarea1{width:440px; height:310px; white-space:pre; overflow-wrap:inherit;}
+        	.textarea2 { width:440px; height:132px; white-space:pre; overflow-wrap:inherit;}
+        	#codeDiv{ float:left; width:480px; height:460px; white-space:nowrap;　margin-bottom:20px; }
+        	#codeDiv pre { margin-top:0;}
+        </style>
+        <script src="/sssweb2/public/ace-editor/ace.js"></script>
+		<script src="/sssweb2/public/ace-editor/mode-php.js"></script>
+		<script src="/sssweb2/public/ace-editor/theme-eclipse.js"></script>
+        <script src="/sssweb2/public/javascripts/ZeroClipboard.js"></script>
+        <script src="/sssweb2/public/javascripts/utils.js"></script>
+        <script>
+        	window.onload=function(){
+        		//ace编辑器
+        		var editor1 = createEditor('textarea1',true);
+        		var editor2 = createEditor('textarea2',true);
+        		var editor3 = createEditor('codeDiv');
+        		
+        		var oSelect = document.getElementsByTagName('select')[0];
+        		var codeDiv = document.getElementById('codeDiv');
+        		//获取所有模板
+        		var url = '/sssweb2/CodeGenerateController/getAllTemplet.do';
+    			ajax(url,null,function(str){
+    				//将模板添加到选项中
+    				var arr = JSON.parse(str);
+    				for(var i=0;i<arr.length;i++){
+    					var name = arr[i];
+    					var oOption = document.createElement('option');
+    					oOption.innerHTML = arr[i].name;
+    					oOption.value = JSON.stringify(arr[i]);
+    					oSelect.appendChild(oOption);
+    				}
+    				//加载第一次选择的模板和参数示例
+    				oSelect.onchange();
+    			});
+        		
+    			//当选择模板时,加载模板内容
+        		oSelect.onchange = function(){
+        			var code = JSON.parse(oSelect.value);
+        			editor1.setContentValue(code.code);
+        			editor2.setContentValue(code.param);
+        			
+        			//修改父页面的input的value
+        			var parentODiv = window.parent.document.getElementsByTagName('div')[0];
+        			var aDiv = parentODiv.getElementsByTagName('div');
+        			for(var i=0;i<aDiv.length;i++){
+	        			if(aDiv[i].className.indexOf('active')!=-1){
+	        				parentODiv.getElementsByTagName('input')[i].value = this.options[this.selectedIndex].text;
+	        			}
+        			}
+        		}
+        		
+        		var oBtn = document.getElementById('btn');
+        		oBtn.onclick = function(){
+        			if(!editor1.getContentValue()){
+        				alert('模板不能为空');
+        				return false;
+        			}
+        			
+        			editor3.setContentValue('');
+        			
+        			var url = '/sssweb2/CodeGenerateController/generation.do';
+        			var param = "templet="+encodeURIComponent(editor1.getContentValue(),"utf-8");
+        			param += "&paramStr="+encodeURIComponent(editor2.getContentValue(),"utf-8");
+        			ajax(url,param,function(str){
+        				//将< 和 > 替换
+        				editor3.setContentValue(str);
+        			});
+        		}
+        		
+        		//复制结果
+				copy('copy',function(){
+					return editor3.getContentValue();
+				});
+        	}
+        </script>
+    </head>
+    <body>
+    	<div class="content">
+    		模板选择:<select></select>
+   			<input id="btn" type="button" value="生成">
+   			<input id="copy" type="button" value="复制结果">
+   			<br>
+   			<div class="div1">
+	   			模板:<br>
+	   			<div id="textarea1" class="textarea1"></div>
+	   			参数:<br>
+	   			<div id="textarea2" class="textarea2"></div>
+   			</div>
+   			代码:<br>
+   			<div id="codeDiv"></div><br>
+    	</div>
+    </body>
+</html>

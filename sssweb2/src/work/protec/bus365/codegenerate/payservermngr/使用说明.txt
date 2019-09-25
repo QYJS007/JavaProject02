@@ -1,0 +1,17 @@
+用于生成qtrip的代码
+使用说明
+	在_all_pub_param.templet中配置相关参数
+	在ServiceMain.java中
+		修改方法
+			getModelName, 指定model类名
+		添加方法
+			private ServiceParam _表名(TableInfo tableInfo){
+			内容参考别的相似方法
+			
+后续修改
+	添加路由(routes)
+	添加菜单(数据库menu表)
+	添加权限(系统中权限管理)
+	添加数据字典(如果有下拉列表的话)(数据库digitaldictionary和digitaldictionarydetail)
+	添加自动补全(如果有自动补全的话)(CommonAction)
+	给不能修改的列 在添加记录时赋值(bp中)

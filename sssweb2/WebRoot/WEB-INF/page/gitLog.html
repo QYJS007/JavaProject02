@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>sssweb-git日志查询</title>
+        <meta charset="utf-8">
+        <style>
+        	body{ margin:0; font-family:Simsun;}
+        	a,a :visited { color:#06c; text-decoration:none;}
+        	h1 { margin:0 auto; text-align:center;}
+        	.content { width:960px; border:1px solid; margin:0 auto; padding:0 40px;}
+        	.span1 { display:inline-block; margin-top:10px;}
+        	
+        	.span1 * { margin-right:25px;}
+        	#pathSelect { width:399px; height:20px;}
+        	#branchSelect { width:145px; height:20px; }
+        	#maxShowNum { width:40px;}
+        	#committer { width:70px;}
+        	#afterDate,#beforeDate { width:90px;}
+        	#afterDate { margin-right:0px;}
+        	#comment { width:140px;}
+        	#logList { width:955px; height:175px; margin-top:10px; font-family:inherit;}
+        	#logList option{height:18px;}
+        	#floatDiv { float:right; margin:3px 5px; font-size:10px;}
+        	#fileList { width:950px; height:235px;}
+        	#num1,#num2 { color:red; display:inline-block; margin:0 2px;}
+        	
+        </style>
+        <script src="/sssweb2/public/javascripts/ZeroClipboard.js"></script>
+        <script src="/sssweb2/public/javascripts/utils.js"></script>
+        <script>
+        	window.onload=function(){
+        		var pathSelect = document.getElementById('pathSelect');
+        		var branchSelect = document.getElementById('branchSelect');
+        		var maxShowNum = document.getElementById('maxShowNum');
+        		var committer = document.getElementById('committer');
+        		var afterDate = document.getElementById('afterDate');
+        		var beforeDate = document.getElementById('beforeDate');
+        		var comment = document.getElementById('comment');
+        		var queryBtn = document.getElementById('queryBtn');
+        		var logList = document.getElementById('logList');
+        		var fileList = document.getElementById('fileList');
+        		var showFileListBtn = document.getElementById('showFileListBtn');
+        		var num1 = document.getElementById('num1');
+        		var num2 = document.getElementById('num2');
+        		
+        		//获取全部本地仓库路径
+        		var url = '/sssweb2/GitLogController/getAllGitLocalPath.do';
+    			ajax(url,null,function(str){
+    				if(str){
+	    				//将模板添加到选项中
+	    				var arr = JSON.parse(str);
+	    				for(var i=0;i<arr.length;i++){
+	    					var oOption = document.createElement('option');
+	    					oOption.innerHTML = arr[i];
+	    					oOption.value = arr[i];
+	    					pathSelect.appendChild(oOption);
+	    				}
+	    				pathSelect.onchange();
+    				}
+    			});
+    			
+    			//当选择本地仓库时,获取分支,获取页面默认值
+    			pathSelect.onchange = function(){
+    				branchSelect.innerHTML = '';
+            		committer.value = '';
+            		afterDate.value = '';
+            		beforeDate.value = '';
+            		
+    				if(pathSelect.value){
+    					//获取分支
+	            		var url = '/sssweb2/GitLogController/getAllBranch.do';
+	            		var params = 'path='+pathSelect.value;
+	        			ajax(url,params,function(str){
+	   	    				var arr = JSON.parse(str);
+	   	    				for(var i=0;i<arr.length;i++){
+	   	    					var oOption = document.createElement('option');
+	   	    					oOption.innerHTML = arr[i];
+	   	    					oOption.value = arr[i];
+	   	    					branchSelect.appendChild(oOption);
+	   	    				}
+	        			});
+	        			//获取页面默认值
+	        			var url = '/sssweb2/GitLogController/getPageDefaultValue.do';
+	            		var params = 'path='+pathSelect.value;
+	        			ajax(url,params,function(str){
+	   	    				var obj = JSON.parse(str);
+	   	    				committer.value = obj.committer;
+	   	            		afterDate.value = obj.afterDate;
+	   	            		beforeDate.value = obj.beforeDate;
+	        			});
+    				}
+    			}
+    			
+    			//当点击查询按钮时
+    			queryBtn.onclick = function(){
+    				logList.innerHTML = '';
+    				fileList.value='';
+    				
+            		var url = '/sssweb2/GitLogController/searchLog.do';
+            		var params = 'path='+pathSelect.value;
+            		params += '&branch='+branchSelect.value;
+            		params += '&committer='+committer.value;
+            		params += '&afterDate='+afterDate.value;
+            		params += '&beforeDate='+beforeDate.value;
+            		params += '&comment='+comment.value;
+        			ajax(url,params,function(str){
+        				num1.innerHTML = str.split('\r\n').length-1;
+        				num2.innerHTML = 0;
+        				logList.innerHTML = str;
+        			});
+    			}
+    			
+    			//当选择提交记录时
+    			logList.onchange = function(){
+    				var num=0;
+        			for(var i=0;i<logList.options.length;i++){
+            			if(logList.options[i].selected){
+            				num++;
+            			}
+        			}
+    				num2.innerHTML = num;
+    			}
+    			
+    			//当点击显示文件时
+    			showFileListBtn.onclick=function(){
+    				fileList.value = '';
+    				//获得选择的值
+    				var hashIds='';
+        			for(var i=0;i<logList.options.length;i++){
+            			if(logList.options[i].selected){
+            				if(hashIds.length>0){
+            					hashIds += ',';
+            				}
+            				hashIds += logList.options[i].value;
+            			}
+        			}
+        			
+        			if(hashIds){
+	        			var url = '/sssweb2/GitLogController/getChangeFilePath.do';
+	            		var params = 'path='+pathSelect.value;
+	            		params += '&branch='+branchSelect.value;
+	            		params += '&hashIds='+hashIds;
+	        			ajax(url,params,function(str){
+	        				fileList.value = str;
+	        			});
+        			}
+    			}
+        	}
+        </script>
+    </head>
+    <body>
+    	<div class="content">
+    		<span class="span1">
+	    		本地仓库: <select id="pathSelect"></select>
+	    		本地分支: <select id="branchSelect"></select>
+	    		<!-- 最大显示记录: <input id="maxShowNum" name="maxShowNum" value="50"> -->
+	   		</span>
+	   		<br>
+	   		<span class="span1">
+	   			提交作者: <input id="committer" name="committer">
+	   			提交日期: <input id="afterDate" name="afterDate"> - <input id="beforeDate" name="beforeDate">
+   				注释包含: <input id="comment" name="comment">
+   				<input id="queryBtn" type="button" value="查询"><br>
+   			</span>
+  			<select id="logList" multiple="multiple"></select>
+  			<div id="floatDiv">
+  				查询到<span id="num1">0</span>次提交,已选择<span id="num2">0</span>次提交
+  				<input id="showFileListBtn" type="button" value="显示文件" >
+  			</div>
+   			<textarea id="fileList" spellcheck="false" wrap="off" readonly="readonly"></textarea>
+    	</div>
+    </body>
+</html>

@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>sssweb-ssh文件查询</title>
+        <meta charset="utf-8">
+        <style>
+        	body{ margin:0; font-family:Simsun;}
+        	a,a :visited { color:#06c; text-decoration:none;}
+        	h1 { margin:0 auto; text-align:center;}
+        	.content { width:960px; border:1px solid; margin:0 auto; padding:0 40px;}
+        	.span1 { display:inline-block; margin-top:10px;}
+        	.pathDiv { margin-top:10px;}
+        	.pathDiv * { float:left;}
+        	#path { width:755px; height:70px; margin-left:8px; margin-right:24px;}
+        	#pathPattern,#noPathPattern,#fileNamePattern,#noFileNamePattern { width:318px;}
+        	#queryStr { width:458px;}
+        	#matchCase { margin-left:10px;}
+        	#btn { margin-left:15px;}
+        	#labelSpan,#labelSpan2 { float:right; font-size:8px; color:#666;}
+        	#ul1 { width:950px; height:155px; margin:10px 0 0 0; border:1px solid #ccc; padding:5px; overflow:scroll; white-space:nowrap; list-style:none; font-size:12px;}
+        	#ul1 li { width:2750px;}
+        	#textDiv { width:950px; height:200px; border:1px solid #ccc; padding:5px; margin:5px 0; overflow:scroll; white-space:nowrap; list-style:none;}
+        	
+        	#selectProjectDiv { width:100%; height:100%; position:absolute; left:0; top:0; background:#ccc; z-index:999px; display:none;}
+        	.selectProjectCenterDiv { width:400px; margin:0 auto;}
+        	#typeSelect{ width:230px; height:20px; margin-right:30px;}
+        	#projectSelect{ width:400px; height:400px; margin-right:30px; }
+        	#btnYes,#btnNo { width:180px; height:50px; margin:10px 5px;}
+        	
+        	.span_red { color:red;}
+        	.fileName,.lineNum,.lineContent,.filePath { display:inline-block; margin-right:30px; overflow:hidden;}
+        	.fileName { width:160px; color:#CD00CD;}
+        	.lineNum { width:60px;}
+        	.lineContent { width:2000px; color:#000;}
+        	.filePath { width:400px; color:#CD00CD;}
+        	
+        	.liClickColor { background:#8FBC8F;}
+			.liOverColor { background:#ccc;}
+        </style>
+        <script src="/sssweb2/public/javascripts/ZeroClipboard.js"></script>
+        <script src="/sssweb2/public/javascripts/utils.js"></script>
+        <script>
+        	window.onload=function(){
+        		var oTypeSelect = document.getElementById('typeSelect');
+        		var oProjectSelect = document.getElementById('projectSelect');
+        		var oPath = document.getElementById('path');
+        		var oQueryStr = document.getElementById('queryStr');
+        		var oBtn = document.getElementById('btn');
+        		var oUl1 = document.getElementById('ul1');
+        		var oTextDiv = document.getElementById('textDiv');
+        		var oLabelSpan = document.getElementById('labelSpan');
+        		var oLabelSpan2 = document.getElementById('labelSpan2');
+        		var oShowLineNum = document.getElementById('showLineNum');
+        		var oMatchCase = document.getElementById('matchCase');
+        		
+        		//获取所有类型
+        		var url = '/sssweb2/SshClientController/getAllType.do';
+    			ajax(url,null,function(str){
+    				if(str){
+	    				//将模板添加到选项中
+	    				var arr = JSON.parse(str);
+	    				for(var i=0;i<arr.length;i++){
+	    					var oOption = document.createElement('option');
+	    					oOption.innerHTML = arr[i];
+	    					oOption.value = arr[i];
+	    					oTypeSelect.appendChild(oOption);
+	    				}
+	    				oTypeSelect.onchange();
+    				}
+    			});
+    			//当选择类型时,获取指定类型的远程项目
+    			oTypeSelect.onchange = function(){
+    				oProjectSelect.innerHTML = '';
+            		var url = '/sssweb2/SshClientController/getRemoteProjectListByType.do';
+            		var params = 'type='+oTypeSelect.value;
+        			ajax(url,params,function(str){
+        				if(str){
+    	    				//将模板添加到选项中
+    	    				var arr = JSON.parse(str);
+    	    				for(var i=0;i<arr.length;i++){
+    	    					var oOption = document.createElement('option');
+    	    					oOption.innerHTML = arr[i].name;
+    	    					oOption.value = JSON.stringify(arr[i]);
+    	    					oProjectSelect.appendChild(oOption);
+    	    				}
+        				}
+        			});
+    			}
+    			
+        		//查询
+        		oBtn.onclick = function (){
+        			if(!oPath.value){
+        				alert('请输入查询路径!');
+        				return;
+        			}
+        			if(!oQueryStr.value){
+        				alert('请输入要查询的字符串!');
+        				return;
+        			}
+        			oLabelSpan.innerHTML = '正在搜索...';
+        			
+        			var url = '/sssweb2/SshQueryController/sshQuery.do';
+        			var param = '&filePath='+encodeURIComponent(oPath.value,"utf-8");
+        			param += "&queryStr="+encodeURIComponent(oQueryStr.value,"utf-8");
+        			param += "&showLineNum="+encodeURIComponent(oShowLineNum.value,"utf-8");
+        			param += "&matchCase="+encodeURIComponent(oMatchCase.checked,"utf-8");
+        			ajax(url,param,function(json){
+        				oLabelSpan.innerHTML = '正在渲染...';
+        				setTimeout(function(){
+        					try{
+        						var time1 = new Date().getTime();
+	        					eval('json = '+json);
+	            				oUl1.innerHTML = json.title;
+	            				oTextDiv.innerHTML = '<pre>'+json.content+'</pre>';
+	            				oLabelSpan2.innerHTML = '　';
+	            				oUl1.scrollTop = 0;
+	            				oTextDiv.scrollTop = 0;
+	            				var time2 = new Date().getTime();
+	            				oLabelSpan.innerHTML = "找到了"+json.lineCount+"个匹配行,花费"+json.time+'+'+(time2-time1)+'毫秒';
+        					}catch(e){
+        						alert('渲染失败,'+e.message);
+        					}
+        				},10);
+        			});
+        		}
+        		
+        		//利用事件委托为li添加点击事件和鼠标移入移出事件
+				oUl1.onclick=function(ev){
+					var e = window.event||ev;
+					var obj = e.srcElement||e.target;		//获取事件源
+					if(obj.nodeName.toUpperCase()!='UL'){	//防止移入ul触发事件
+						//将所有li背景还原
+						var aLi = this.getElementsByTagName('li');
+						for(var i=0;i<aLi.length;i++){
+							aLi[i].className = '';
+							aLi[i].setAttribute('lastClass','');//记录颜色
+						}
+						//将指定li背景改变
+						while(obj.nodeName.toUpperCase()!='LI'){
+							obj = obj.parentNode;
+						}
+						var oLi = obj;
+						oLi.className='liClickColor';
+						oLi.setAttribute('lastClass','liClickColor');//记录颜色
+						
+						//显示选中文件的路径
+						var path = oLi.children[0].children[3].innerHTML;
+						if(path.substring(0,5)=='/app/' && path.substring(path.length-5)=='.java'){
+							path += ' ( '+path.substring(5,path.length-5).replace(/[/]/g,'.')+' )';
+						}
+						oLabelSpan2.innerHTML = path;
+					}
+				};
+				oUl1.onmouseover=function(ev){
+					var e = window.event||ev;
+					var obj = e.srcElement||e.target;		//获取事件源
+					if(obj.nodeName.toUpperCase()!='UL'){	//防止移入ul触发事件
+						//将指定li背景改变
+						while(obj.nodeName.toUpperCase()!='LI'){
+							obj = obj.parentNode;
+						}
+						var oLi = obj;
+						//改变颜色
+						oLi.className='liOverColor';
+					}
+				};
+				oUl1.onmouseout=function(ev){
+					var e = window.event||ev;
+					var obj = e.srcElement||e.target;		//获取事件源
+					if(obj.nodeName.toUpperCase()!='UL'){	//防止移入ul触发事件
+						//将指定li背景改变
+						while(obj.nodeName.toUpperCase()!='LI'){
+							obj = obj.parentNode;
+						}
+						var oLi = obj;
+						//还原颜色
+						var lastColor = oLi.getAttribute('lastClass');
+						oLi.className=lastColor?lastColor:'';
+					}
+				};
+				
+				//排序功能
+				var oSort = document.getElementById('sort');
+				oSort.onclick=function(){
+					var aLi = oUl1.getElementsByTagName('li');
+					
+					var arr = [];
+					for(var i=0;i<aLi.length;i++){
+						arr.push(aLi[i]);
+					}
+					
+					var re = /<[^>]*?>/g;
+					arr.sort(function(obj1,obj2){
+						var str1 = obj1.children[0].children[2].innerHTML.replace(re,'');
+						var str2 = obj2.children[0].children[2].innerHTML.replace(re,'');
+						var num = str1.localeCompare(str2);
+						return num;
+					});
+					
+					oUl1.innerHTML = '';
+					for(var i=0;i<arr.length;i++){
+						oUl1.appendChild(arr[i]);
+					}
+				}
+				
+				//为文本框添加键盘按下事件,按回车就查询
+				oQueryStr.onkeydown=function(ev){
+					var e = window.event||ev;
+					if(e.keyCode=='13'){
+						oBtn.click();
+					}
+				};
+				
+    			//选择项目
+    			var selectProjectBtn = document.getElementById('selectProjectBtn');
+    			var selectProjectDiv = document.getElementById('selectProjectDiv');
+    			var btnYes = document.getElementById('btnYes');
+    			var btnNo = document.getElementById('btnNo');
+    			//给"多选项目打开"添加事件
+    			selectProjectBtn.onclick = function(){
+    				selectProjectDiv.style.display = 'block';
+    			}
+    			//给确定按钮添加事件
+    			btnYes.onclick = function(){
+    				//获得选择的值
+    				var projectArr=[];
+        			for(var i=0;i<projectSelect.options.length;i++){
+	        			if(projectSelect.options[i].selected){
+	        				projectArr.push(projectSelect.options[i].value);
+	        			}
+        			}
+        			//给path文本框赋值
+        			// * 计算文件名称总长度
+        			var fileNameLen = 0;
+        			for(var i=0;i<projectArr.length;i++){
+        				var p = JSON.parse(projectArr[i]);
+        				var l = len(p.name);
+        				if(fileNameLen<l){
+        					fileNameLen = l;
+        				}
+        			}
+        			// * 拼凑内容
+        			var space = '                    ';
+        			var str = '';
+        			for(var i=0;i<projectArr.length;i++){
+        				var project = JSON.parse(projectArr[i]);
+        				//计算要填充的空格长度
+        				var spaceLen = fileNameLen-len(project.name);
+        				var spaceStr = "";
+        				if(spaceLen>0){
+        					spaceStr = space.substring(0,spaceLen);//应填充的空格数
+        				}
+        				//拼凑内容
+        				str += project.name + spaceStr + " > " + project.path + '/logs/application.log';
+        				if(i!=projectArr.length-1){
+        					str += '\r\n';
+        				}
+        			}
+        			oPath.value = str;
+        			
+        			//修改父页面的input的value
+        			var parentODiv = window.parent.document.getElementsByTagName('div')[0];
+        			var aDiv = parentODiv.getElementsByTagName('div');
+        			for(var i=0;i<aDiv.length;i++){
+	        			if(aDiv[i].className.indexOf('active')!=-1){
+	        				parentODiv.getElementsByTagName('input')[i].value = projectSelect.options[projectSelect.selectedIndex].text;
+	        			}
+        			}
+        			
+        			//隐藏div
+        			selectProjectDiv.style.display = 'none';
+    			}
+    			//给取消按钮添加事件
+    			btnNo.onclick = function(){
+    				selectProjectDiv.style.display = 'none';
+    			}
+    			
+    			//返回字符串的字节数
+				//(计算缩进用,因为在gbk中1个汉字等于2个字母的长度,而1个汉字正好等于2个字母的字节数.所以长度==字节数)
+				function len(s) {
+					var l = 0;
+					var a = s.split("");
+					for (var i=0;i<a.length;i++) {
+						if (a[i].charCodeAt(0)<299) {
+							l++;
+						} else {
+							l+=2;
+						}
+					}
+					return l;
+				}
+				
+        	}
+        </script>
+    </head>
+    <body>
+    	<div class="content">
+	   		<div class="pathDiv">
+	   			<label>搜索路径:</label>
+	   			<textarea id="path" name="path" spellcheck="false" wrap="off"></textarea>
+	   			<input type="button" value="选择项目" id="selectProjectBtn">
+   			</div>
+   			<span class="span1">
+	   			搜索文本: <input id="queryStr" name="queryStr">
+   			</span>
+   			<input type="checkbox" id="matchCase" name="matchCase" checked="checked">区分大小写
+   			　显示相关的行数: <input id="showLineNum" value="50" style="width:30px;">
+   			<input id="btn" type="button" value="查询">
+   			<a id="sort" href="javascript:;" style="font-size:10px; margin-left:10px;">排序</a>
+   			<div id="div2">
+	   			<span id="labelSpan">　</span>
+	   			<ul id="ul1"></ul>
+	   			<span id="labelSpan2">　</span>
+	   			<div id="textDiv"></div>
+   			</div>
+   			
+   			<div id="selectProjectDiv">
+   				<div class="selectProjectCenterDiv">
+	   				类型:<br>
+	   				<select id="typeSelect"><option value="">全部</option></select>
+	   				<br>
+	   				项目:<br>
+	   				<select id="projectSelect" multiple="multiple"></select>
+	   				<br>
+	   				<div id="selectProjectBtnDiv">
+			    		<input id="btnYes" type="button" value="确定">
+			    		<input id="btnNo" type="button" value="取消">
+		    		</div>
+   				</div>
+   			</div>
+    	</div>
+    </body>
+</html>

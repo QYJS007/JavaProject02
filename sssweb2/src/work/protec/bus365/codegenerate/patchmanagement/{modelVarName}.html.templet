@@ -1,0 +1,152 @@
+#{extends 'main.html' /}
+#{set title:'项目管理.html' /}
+#{header /}
+<link rel="stylesheet" href="/public/stylesheets/common.css">
+<link rel="stylesheet" href="/public/jquery-ztree-3.5.15/css/zTreeStyle/zTreeStyle.css">
+<script src="/public/jquery-ztree-3.5.15/js/jquery.ztree.all-3.5.min.js"></script>
+<script src="/public/javascripts/jquery-form.js"></script>
+<script src="/public/javascripts/system/${modelVarName}.js"></script>
+
+<body>
+	<div class="panel panel-default" id="query">
+		<div class="panel-heading">
+			<h4 class="panel-title">
+				<a data-toggle="collapse" data-toggle="collapse" href="#collapseOne">
+					查询条件
+				</a>
+			</h4>
+		</div>
+		<div id="collapseOne" class="panel-collapse collapse in">
+			<div class="panel-body">
+				<form id="searchform">
+					<div class="row">
+				##遍历循环列
+				#for(String columnName : serviceParamMap.searchParamList)
+					##判断是否是日期类型
+					#if(tableInfo.columnInfoMap.get(columnName).javaType=='Date')
+						<div class="col-xs-3">
+							<div class="form-group">
+								<label class="col-xs-4 control-label" for="s_${columnName}_start"><span class="title">${serviceParamMap.fieldChineseNameMap.get(columnName)}</span></label>
+								<div class="col-xs-8">
+									<input type="text" name="${columnName}_start" id="s_${columnName}_start" class="form-control input-sm">
+								</div>
+							</div>
+						</div>
+						<div class="col-xs-3">
+							<div class="form-group">
+								<label class="col-xs-4 control-label" for="s_${columnName}_end"><span class="title">至</span></label>
+								<div class="col-xs-8">
+									<input type="text" name="${columnName}_end" id="s_${columnName}_end" class="form-control input-sm">
+								</div>
+							</div>
+						</div>
+					##判断是否是下拉列表
+					#elseif(serviceParamMap.selectFieldList.contains(columnName))
+						<div class="col-xs-3">
+							<div class="form-group">
+								<label class="col-xs-4 control-label" for="s_${columnName}"><span class="title">${serviceParamMap.fieldChineseNameMap.get(columnName)}</span></label>
+								<div class="col-xs-8">
+									<select class="form-control input-sm" id="s_${columnName}" name="${columnName}">
+										<option value="">请选择</option>														
+		                            </select>
+								</div>
+							</div>
+						</div>
+					#else
+						<div class="col-xs-3">
+							<div class="form-group">
+								<label class="col-xs-4 control-label" for="s_${columnName}"><span class="title">${serviceParamMap.fieldChineseNameMap.get(columnName)}</span></label>
+								<div class="col-xs-8">
+									<input type="text" name="${columnName}" id="s_${columnName}" class="form-control input-sm">
+								</div>
+							</div>
+						</div>
+					#end
+				#end
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<div id="operate">
+		<span class="title">操作</span>
+		<button class="btn btn-primary" id="search" type="button"> <span class="glyphicon glyphicon-search"></span> 查询</button>
+		<button class="btn btn-primary" id="add" type="button">	<span class="glyphicon glyphicon-plus"></span> 新增</button>
+		<button class="btn btn-primary" id="modify" type="button"> <span class="glyphicon glyphicon-edit"></span> 修改</button>
+		<button class="btn btn-primary" id="delete" type="button"> <span class="glyphicon glyphicon-trash"></span> 删除</button>
+	</div>
+
+	<div id="dataset">
+		<table id="dg"></table>
+	</div>
+
+	<div class="modal fade" id="dynamicModal" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button class="close" type="button" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="myModalLabel">
+						<span class="optmark"></span>${serviceParamMap.modelChineseName}
+					</h4>
+				</div>
+				<div class="modal-body">
+					<form id="editform">
+						<div id="prompt"></div>
+
+						<input type="hidden" name="${modelVarName}.${primaryKeyName}" id="e_${primaryKeyName}">
+						<div class="row">
+					##遍历所有列
+					#for(String columnName : tableInfo.columnInfoMap.keySet())
+						##跳过主键 和 不能修改的列
+						#if(columnName==primaryKeyName || serviceParamMap.noUpdateShowList.contains(columnName))
+							#continue
+						#end
+						##判断是否是textArea列
+						#if(serviceParamMap.textAreaList.contains(columnName))	
+							<div class="col-xs-12">
+								<div class="form-group">
+									<label for="e_${columnName}" class="col-xs-2 control-label">${serviceParamMap.mustFieldList.contains(columnName)?'<span class="mark">*</span>':''}<span class="title">${serviceParamMap.fieldChineseNameMap.get(columnName)}</span></label>
+									<div class="col-xs-9">
+										<textarea type="text" name="${modelVarName}.${columnName}" id="e_${columnName}" class="form-control input-sm" style="height: 80px;"></textarea>
+									</div>
+								</div>
+							</div>
+						##判断是否是下拉列表
+						#elseif(serviceParamMap.selectFieldList.contains(columnName))
+							<div class="col-xs-6">
+								<div class="form-group">
+									<label for="e_${columnName}" class="col-xs-4 control-label">${serviceParamMap.mustFieldList.contains(columnName)?'<span class="mark">*</span>':''}<span class="title">${serviceParamMap.fieldChineseNameMap.get(columnName)}</span></label>
+									<div class="col-xs-8">
+										<select class="form-control input-sm" id="e_${columnName}" name="${modelVarName}.${columnName}">
+										##判断是否可以为空
+										#if(!serviceParamMap.mustFieldList.contains(columnName))
+											<option value="">请选择</option>							
+										#end
+			                            </select>
+									</div>
+								</div>
+							</div>
+						#else
+							<div class="col-xs-6">
+								<div class="form-group">
+									<label for="e_${columnName}" class="col-xs-4 control-label">${serviceParamMap.mustFieldList.contains(columnName)?'<span class="mark">*</span>':''}<span class="title">${serviceParamMap.fieldChineseNameMap.get(columnName)}</span></label>
+									<div class="col-xs-8">
+										<input type="text" name="${modelVarName}.${columnName}" id="e_${columnName}" class="form-control input-sm">
+									</div>
+								</div>
+							</div>
+						#end
+					#end
+						</div>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-primary" id="save" type="button"> <span class="glyphicon glyphicon-pencil"></span> 保存 </button>
+					<button class="btn btn-primary" type="button" data-dismiss="modal"> <span class="glyphicon glyphicon-remove"></span> 关闭</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

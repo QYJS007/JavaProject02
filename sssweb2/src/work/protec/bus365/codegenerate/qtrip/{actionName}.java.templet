@@ -1,0 +1,46 @@
+package ${actionPackageName};
+
+import java.util.Map;
+
+import models.Result;
+import ${modelPackageName}.${modelName};
+import utils.JSONUtil;
+import ${servicePackageName}.${serviceName};
+
+
+public class ${actionName} extends Application {
+	
+	//返回页面
+	public static void index() {
+		render("/system/${modelVarName}.html");
+	}
+
+	//条件查询
+	public static void search(String params, int page, int rows) throws Exception{
+		Map<String,Object> paramMap = JSONUtil.parseJson2Map(params);
+		Map<String,Object> resultMap = new ${serviceName}().search(paramMap, page, rows);
+		renderText(JSONUtil.parseObject(resultMap));
+	}
+	
+	//保存
+	public static void save(${modelName} ${modelVarName}) throws Exception {
+		Result result = new ${serviceName}().save(${modelVarName});
+		renderText(JSONUtil.parseObject(result));
+	}
+
+	//删除
+	public static void delete(String ids){
+		String[] idArr = ids.split(",");
+	#if(primaryKeyType=='String')
+		Result result = new ${serviceName}().deleteById(idArr);
+	#else
+		${primaryKeyType}[] idArr2 = new ${primaryKeyType}[idArr.length];
+		for(int i=0;i<idArr.length;i++){
+			idArr2[i] = new ${primaryKeyType}(idArr[i]);
+		}
+		Result result = new ${serviceName}().deleteById(idArr2);
+	#end
+		renderText(JSONUtil.parseObject(result));
+	}
+
+}

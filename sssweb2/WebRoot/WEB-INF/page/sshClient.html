@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>sssweb-ssh</title>
+        <meta charset="utf-8">
+        <style>
+        	body { margin:0; font-family:Simsun;}
+        	.content { width:956px; height:500px; border:1px solid; padding:15px 30px;}
+        	#typeSelect{ width:150px; height:20px; margin-right:20px;}
+        	#projectSelect{ width:250px; height:20px; margin-right:30px;}
+        	.line { margin-bottom:8px;}
+        	#codeDiv{ float:left; width:930px; height:415px; white-space:nowrap;　margin-bottom:20px; border:1px solid #ccc; overflow:scroll;}
+        	#codeDiv pre { margin-top:0;}
+        	#tishi { font-size:12px; color:#999;}
+        	
+        	#commandInput { width:400px;}
+        	#commandSelect { width:150px;}
+        	#downBtn { margin-left:8px;}
+        	#commandBtnGroup { margin-top:5px;}
+        	#commandBtnGroup input{ margin-right:5px;}
+        	
+        	a,a :visited { color:#06c; text-decoration:none; font-size:12px;}
+        	#openMore { display:inline-block; margin-left:10px;}
+        	
+        	#s_selectProjectDiv { width:100%; height:100%; position:absolute; left:0; top:0; background:#ccc; z-index:999px; display:none;}
+        	.s_selectProjectCenterDiv { width:400px; margin:0 auto;}
+        	#s_typeSelect{ width:230px; height:20px; margin-right:30px;}
+        	#s_projectSelect{ width:400px; height:400px; margin-right:30px; }
+        	#s_btnYes,#s_btnNo { width:180px; height:50px; margin:10px 5px;}
+        </style>
+        <script src="/sssweb2/public/javascripts/ZeroClipboard.js"></script>
+        <script src="/sssweb2/public/javascripts/utils.js"></script>
+        <script>
+        	window.onload=function(){
+        		var oTypeSelect = document.getElementById('typeSelect');
+        		var oProjectSelect = document.getElementById('projectSelect');
+        		var oCommandSelect = document.getElementById('commandSelect');
+        		var oCommandInput = document.getElementById('commandInput');
+        		var oPre = document.getElementById('codeDiv').children[0];
+        		var tishi = document.getElementById('tishi');
+        		
+        		var openMore = document.getElementById('openMore');
+    			var s_selectProjectDiv = document.getElementById('s_selectProjectDiv');
+    			var s_typeSelect = document.getElementById('s_typeSelect');
+    			var s_projectSelect = document.getElementById('s_projectSelect');
+    			var s_btnYes = document.getElementById('s_btnYes');
+    			var s_btnNo = document.getElementById('s_btnNo');
+    			
+        		var nowId = '';//当前连接的id
+        		
+        		//获取所有类型
+        		var url = '/sssweb2/SshClientController/getAllType.do';
+    			ajax(url,null,function(str){
+    				if(str){
+	    				//将模板添加到选项中
+	    				var arr = JSON.parse(str);
+	    				for(var i=0;i<arr.length;i++){
+	    					var oOption = document.createElement('option');
+	    					oOption.innerHTML = arr[i];
+	    					oOption.value = arr[i];
+	    					oTypeSelect.appendChild(oOption);
+	    					
+	    					var oOption2 = document.createElement('option');
+	    					oOption2.innerHTML = arr[i];
+	    					oOption2.value = arr[i];
+	    					s_typeSelect.appendChild(oOption2);
+	    				}
+	    				oTypeSelect.onchange();
+	    				s_typeSelect.onchange();
+    				}
+    			});
+    			
+    			//当选择类型时,获取指定类型的远程项目
+    			function typeChange (typeSelect, projectSelect){
+    				projectSelect.innerHTML = '<option></option>';
+            		var url = '/sssweb2/SshClientController/getRemoteProjectListByType.do';
+            		var params = 'type='+typeSelect.value;
+        			ajax(url,params,function(str){
+        				if(str){
+    	    				//将模板添加到选项中
+    	    				var arr = JSON.parse(str);
+    	    				for(var i=0;i<arr.length;i++){
+    	    					var oOption = document.createElement('option');
+    	    					oOption.innerHTML = arr[i].name;
+    	    					oOption.value = JSON.stringify(arr[i]);
+    	    					projectSelect.appendChild(oOption);
+    	    				}
+        				}
+        			});
+    			}
+    			oTypeSelect.onchange = function(){
+    				typeChange(oTypeSelect, oProjectSelect);
+    			};
+    			s_typeSelect.onchange = function(){
+    				typeChange(s_typeSelect, s_projectSelect);
+    			}
+
+    			//当选择模板时,发送请求(建立连接,并打开指定目录,并获取命令)
+        		oProjectSelect.onchange = function(){
+        			projectChange();
+        			
+        		}
+    			
+    			function projectChange(){
+					openConn();
+        			
+        			var url = '/sssweb2/SshClientController/getRemoteCommand.do';
+        			var param = 'remoteProjectId='+JSON.parse(oProjectSelect.value).id;
+        			ajax(url,param,function(str){
+        				if(str){
+    	    				//将模板添加到选项中
+    	    				oCommandSelect.innerHTML='<option></option>';
+    	    				var arr = JSON.parse(str);
+    	    				for(var i=0;i<arr.length;i++){
+    	    					//添加到下拉列表
+    	    					var oOption = document.createElement('option');
+    	    					oOption.innerHTML = arr[i].name;
+    	    					oOption.value = arr[i].command;
+    	    					oCommandSelect.appendChild(oOption);
+    	    				}
+    	    				
+    	    				//添加常用命令按钮
+    	    				var commandBtnGroup = document.getElementById('commandBtnGroup');
+    	    				commandBtnGroup.innerHTML = '<span style="display:inline-block; width:158px;">常用命令按钮:</span>';
+    	    				for(var i=0;i<arr.length;i++){
+    	    					var oInput = document.createElement('input');
+    	    					oInput.type = 'button';
+    	    					oInput.value = arr[i].name;
+    	    					oInput.command = arr[i].command;
+    	    					oInput.onclick = function(){
+    	    						if(!nowId){
+    	    							alert('nowId为空');
+    	    							return;
+    	    						}
+    	    						var url = '/sssweb2/SshClientController/execCommand.do';
+    	                			var param = "command="+encodeURIComponent(this.command,"utf-8");
+    	                			param += "&nowId="+nowId;
+    	            				ajax(url,param);
+    	    					}
+    	    					commandBtnGroup.appendChild(oInput);
+    	    				}
+        				}
+        			});
+        			
+        			//修改父页面的input的value
+        			var parentODiv = window.parent.document.getElementsByTagName('div')[0];
+        			var aDiv = parentODiv.getElementsByTagName('div');
+        			for(var i=0;i<aDiv.length;i++){
+	        			if(aDiv[i].className.indexOf('active')!=-1){
+	        				parentODiv.getElementsByTagName('input')[i].value = oProjectSelect.options[oProjectSelect.selectedIndex].text;
+	        			}
+        			}
+    			}
+    			
+    			var lastAjax = null;
+    			var timer = null;//定时改变pre内容的定时器
+    			var cleanLineNum = 0;//记录清除的屏幕的行数
+    			var nowStr = '';
+    			var lastStr = '';
+    			
+    			//建立连接
+    			function openConn(){
+    				if(oProjectSelect.value==''){
+    					alert('请选择项目');
+    					return;
+    				}
+    				
+    				var lastId = nowId;
+    				reset();
+    				
+    				//建立连接
+        			setTimeout(function(){
+        				var url = '/sssweb2/SshClientController/openConn.do';
+            			var param = "remoteProjectId="+JSON.parse(oProjectSelect.value).id;
+            			param += "&lastId="+lastId;
+            			var num = 0;
+            			lastAjax = ajax_long(url,param,function(str){
+            				num++;
+            				//console.log(str);
+            				if(num==1){
+            					//保存id
+            					nowId = str.substring(str.indexOf('id:')+3).split('\r\n')[0];
+            				}
+            				if(num==2){
+            					if(str.indexOf('连接已断开')==-1){
+	            					//打开指定目录
+	            					var command = 'cd '+JSON.parse(oProjectSelect.value).path;
+	                				var url = '/sssweb2/SshClientController/execCommand.do';
+	                    			var param = "command="+encodeURIComponent(command,"utf-8");
+	                    			param += "&nowId="+nowId;
+	                				ajax(url,param);
+            					}
+            				}
+            				
+            				nowStr = str;
+            				//nowId存在表示自动断开连接,不存在表示重新连接
+            				if(nowId && str.indexOf('连接已断开')!=-1){
+								updateDate();
+								reset();
+            				}
+        				});
+        			},1);
+    				
+    				
+    				var updateDate = function(){
+        				var nowStr2 = nowStr;//防止中途nowStr的值被改变
+    					if(nowStr2 != lastStr){
+	    					var lineArr = nowStr2.split('\r\n');
+	        				if(lineArr.length-cleanLineNum>1000){
+	        					cleanLineNum = lineArr.length-1000;
+	        				}
+	        				//拼接显示的行
+	        				var newStr = '';
+	        				for(var i=cleanLineNum;i<lineArr.length;i++){
+	        					lineArr[i] = lineArr[i].replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+	        					newStr += lineArr[i]+'<br>';
+	        				}
+	        				oPre.innerHTML = newStr;
+	        				oPre.parentNode.scrollTop = 100000;
+	        				
+	        				tishi.innerHTML = '(id:'+nowId+',总行数:'+lineArr.length+')';
+	        				lastStr = nowStr2;
+    					}
+    				}
+        			timer = setInterval(updateDate,50);
+    			}
+    			
+    			//重置
+    			function reset(){
+    				cleanLineNum = 0;
+    				nowId = '';
+					nowStr = '';
+					lastStr = '';
+					if(timer!=null){
+        				clearInterval(timer);
+        			}
+					if(lastAjax!=null){
+						lastAjax.abort();
+					}
+    			}
+    			
+    			var commandHistoryArr = [];//命令历史
+    			var commandIndex = 0;//当前命令的索引
+    			//为文本框加事件
+    			oCommandInput.onkeydown=function(ev){
+    				var e = window.event||ev;
+    				//回车,发送命令
+					if(e.keyCode=='13'){
+						document.getElementById('sendBtn').click();
+						return;
+					}
+    				//ctrl+c,发送^C
+    				if(e.keyCode=='67' && e.ctrlKey){
+    					document.getElementById('CBtn').click();
+    					return;
+    				}
+    				
+    				//上,下
+    				if(e.keyCode=='38'){
+    					if(commandIndex>0){
+    						commandIndex--;
+    						oCommandInput.value = commandHistoryArr[commandIndex];
+    					}
+    				}else if(e.keyCode=='40'){
+    					if(commandIndex<commandHistoryArr.length){
+    						commandIndex++;
+    						if(commandIndex==commandHistoryArr.length){
+    							oCommandInput.value = '';
+    						}else{
+    							oCommandInput.value = commandHistoryArr[commandIndex];
+    						}
+    					}
+    				}
+    			}
+    			
+    			//当选择命令模板时,为文本框赋值
+    			oCommandSelect.onchange = function(){
+    				oCommandInput.value=this.value;
+    			}
+    			
+    			//为按钮添加事件
+    			//关闭连接
+        		document.getElementById('closeConnBtn').onclick = function(){
+        			if(nowId){
+						var url = '/sssweb2/SshClientController/closeConn.do';
+            			var param = "nowId="+nowId;
+        				ajax(url,param,function(str){
+        					oPre.innerHTML += '连接已断开<br>';
+        					oPre.parentNode.scrollTop = 100000;
+        					
+        					reset();
+        				});
+					}else{
+						alert('nowId为空');
+					}
+    			}
+    			
+    			//建立连接
+        		document.getElementById('openConnBtn').onclick = function(){
+        			openConn();
+    			}
+    			
+    			//查看所有连接
+        		document.getElementById('queryAllConnBtn').onclick = function(){
+        			var url = '/sssweb2/SshClientController/allConn.do';
+    				ajax(url,null,function(str){
+    					alert(str);
+    				});
+    			}
+    			
+    			//清空屏幕
+    			document.getElementById('cleanBtn').onclick = function(){
+					cleanLineNum += oPre.innerHTML.split('<br>').length-2;
+					oPre.innerHTML = '';
+    			}
+    			
+    			//发送命令
+    			document.getElementById('sendBtn').onclick = function(){
+					var command = oCommandInput.value;
+					if(command){
+						if(nowId){
+							commandHistoryArr.push(command);
+							commandIndex = commandHistoryArr.length;
+							if(command=='clear'){
+								document.getElementById('cleanBtn').click();
+							}else{
+	    						var url = '/sssweb2/SshClientController/execCommand.do';
+	                			var param = "command="+encodeURIComponent(command,"utf-8");
+	                			param += "&nowId="+nowId;
+	            				ajax(url,param);
+							}
+							oCommandInput.value='';
+						}else{
+							alert('nowId为空');
+						}
+					}
+					oCommandSelect.selectedIndex=0;
+    			}
+    			
+    			//发送^C
+    			document.getElementById('CBtn').onclick = function(){
+    				if(nowId){
+						var command = '^C';
+    					var url = '/sssweb2/SshClientController/execCommand.do';
+            			var param = "command="+encodeURIComponent(command,"utf-8");
+            			param += "&nowId="+nowId;
+        				ajax(url,param);
+        				oCommandInput.value='';
+					}
+    			}
+        		
+    			//下载文件
+    			document.getElementById('downBtn').onclick = function(){
+    				if(nowId){
+    					var path = prompt("请输入要下载的文件路径",JSON.parse(oProjectSelect.value).path+'/logs/application.log');
+    					if(!path){
+    						alert('请输入文件路径!');
+    						return;
+    					}
+    					//下载日志
+						var url = '/sssweb2/SshClientController/downFile.do';
+						var param = "nowId="+nowId;
+						param += "&path="+path;
+        				ajax(url,param,function(str){
+        					if(str)alert(str);
+        				});
+					}else{
+						alert('当前没有连接');
+					}
+    			}
+    			
+    			//打开SecureCRT
+    			document.getElementById('openSecureCRT').onclick = function(){
+    				if(nowId){
+    					//下载日志
+						var url = '/sssweb2/SshClientController/openSecureCRT.do';
+						var param = "nowId="+nowId;
+        				ajax(url,param,function(str){
+        					if(str)alert(str);
+        				});
+					}else{
+						alert('当前没有连接');
+					}
+    			}
+    			
+    			//每3分钟发送状态,证明页面打开,重置关闭连接的定时器
+        		setInterval(function(){
+        			if(nowId){
+	        			var url = '/sssweb2/SshClientController/state.do';
+	        			var param = "nowId="+nowId;
+	    				ajax(url,param,function(str){
+	    					if(str=='false'){
+	    						oPre.innerHTML += '连接已断开<br>';
+            					oPre.parentNode.scrollTop = 100000;
+            					reset();
+	    					}
+	    				});
+        			}
+        		},180000);
+    			
+        		//选择项目
+    			//给"多选项目打开"添加事件
+    			openMore.onclick = function(){
+    				s_selectProjectDiv.style.display = 'block';
+    			}
+    			//给确定按钮添加事件
+    			s_btnYes.onclick = function(){
+    				//获得选择的值
+    				var projectArr=[];
+        			for(var i=0;i<s_projectSelect.options.length;i++){
+	        			if(s_projectSelect.options[i].selected){
+	        				projectArr.push(s_projectSelect.options[i].value);
+	        			}
+        			}
+        			//调用父窗口的myReLoad方法
+        			window.parent.myReLoad(projectArr);
+    			}
+    			//给取消按钮添加事件
+    			s_btnNo.onclick = function(){
+    				s_selectProjectDiv.style.display = 'none';
+    			}
+    			
+        	}
+        </script>
+    </head>
+    <body>
+    	<div class="content">
+    		<div class="line">
+    			类型:
+    			<select id="typeSelect"><option value="">全部</option></select>
+	    		项目:
+	    		<select id="projectSelect"><option></option></select>
+	    		<input id="closeConnBtn" type="button" value="断开连接">
+	   			<input id="openConnBtn" type="button" value="建立连接">
+	   			<input id="queryAllConnBtn" type="button" value="查看所有连接">
+	   			<a id="openMore" href="javascript:void(0)">多选项目打开</a>
+    		</div>
+   			输出:<span id="tishi"></span><br>
+   			<div id="codeDiv"><pre></pre></div>
+   			
+   			<select id="commandSelect"><option></option></select>
+   			<input id="commandInput">
+   			<input id="sendBtn" type="button" value="发送">
+   			<input id="CBtn" type="button" value="^C">
+   			<input id="cleanBtn" type="button" value="清空屏幕">
+   			<input id="downBtn" type="button" value="下载文件">
+   			<input id="openSecureCRT" type="button" value="打开SecureCRT">
+   			
+   			<div id="commandBtnGroup">
+	   			<span style="display:inline-block; width:158px;">常用命令按钮:</span>
+   			</div>
+    	</div>
+    	
+		<div id="s_selectProjectDiv">
+   			<div class="s_selectProjectCenterDiv">
+	   			类型:<br>
+   				<select id="s_typeSelect"><option value="">全部</option></select>
+   				<br>
+   				项目:<br>
+   				<select id="s_projectSelect" multiple="multiple"></select>
+   				<br>
+   				<div id="selectProjectBtnDiv">
+		    		<input id="s_btnYes" type="button" value="确定">
+		    		<input id="s_btnNo" type="button" value="取消">
+	    		</div>
+   			</div>
+   		</div>
+    </body>
+</html>

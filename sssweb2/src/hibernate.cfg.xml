@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+	"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+	"http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+	<!-- 相当于连接池的配置 -->
+	<session-factory>
+		<!-- 基本4项 -->
+		<property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+		<property name="hibernate.connection.url">jdbc:mysql://127.0.0.1:3306/ssweb?autoReconnect=true&amp;testConnectionOnCheckin=false&amp;testConnectionOnCheckout=true&amp;useUnicode=true&amp;characterEncoding=utf-8</property>
+		<property name="hibernate.connection.username">root</property>
+		<property name="hibernate.connection.password">root</property>
+		
+		<!-- 方言,取值在hibernate3.jar/org.hibernate.dialect下的类-->
+		<property name="dialect">org.hibernate.dialect.MySQL5Dialect</property>
+		
+		<!-- 其他 -->
+		<!-- * 显示sql语句 -->
+		<property name="hibernate.show_sql">false</property>
+		<!-- * 格式化sql语句 -->
+		<property name="hibernate.format_sql">false</property>
+		<!-- * 自动生成表 (不能自动生成库)-->
+		<property name="hibernate.hbm2ddl.auto">update</property>
+		
+		<!-- java ee6.0项目，异常提供没有验证工厂，取消验证 -->
+		<property name="javax.persistence.validation.mode">none</property>
+		
+		<!-- 整合c3p0 -->
+		<property name="hibernate.connection.provider_class">org.hibernate.connection.C3P0ConnectionProvider</property>
+		<!-- 如果池中数据连接不够时一次增长多少个 -->
+		<property name="hibernate.c3p0.acquire_increment">5</property>
+		<property name="hibernate.c3p0.min_size">3</property>
+		<property name="hibernate.c3p0.max_size">5</property><!-- 最大连接数 -->
+		<!-- 防止8个小时连接超时后,第一次连接报错 -->
+		<property name="c3p0.testConnectionOnCheckin">false</property>
+		<property name="c3p0.testConnectionOnCheckout">true</property>
+		<property name="c3p0.automaticTestTable">t_c3p0_test</property>
+		<property name="c3p0.idleConnectionTestPeriod">18000</property>
+		<property name="c3p0.maxIdleTime">25000</property>
+		<!-- 不管用可以试试这个
+		<property name="hibernate.c3p0.testConnectionOnCheckin">true</property>
+		<property name="hibernate.c3p0.timeout">180</property>
+		<property name="hibernate.c3p0.max_idle_time">180</property>
+		<property name="hibernate.c3p0.idle_test_period">180</property>
+		-->
+		
+		
+		<!-- 添加其他配置文件 -->
+		<mapping resource="model/mapping/CodeCallTemplet.hbm.xml"/>
+		<mapping resource="model/mapping/CodeGenerateTemplet.hbm.xml"/>
+		<mapping resource="model/mapping/RemoteCommandGroup.hbm.xml"/>
+		<mapping resource="model/mapping/HttpDownTemplet.hbm.xml"/>
+		<mapping resource="model/mapping/HttpTemplet.hbm.xml"/>
+		<mapping resource="model/mapping/LocalProject.hbm.xml"/>
+		<mapping resource="model/mapping/QueryTemplet.hbm.xml"/>
+		<mapping resource="model/mapping/RemoteCommand.hbm.xml"/>
+		<mapping resource="model/mapping/RemoteProject.hbm.xml"/>
+		<mapping resource="model/mapping/StringHandleTemplet.hbm.xml"/>
+		<mapping resource="model/mapping/LineReplaceTemplet.hbm.xml"/>
+		<mapping resource="model/mapping/Dictionary.hbm.xml"/>
+		<mapping resource="model/mapping/DictionaryDetail.hbm.xml"/>
+		<mapping resource="model/mapping/DbInfo.hbm.xml"/>
+		<mapping resource="model/mapping/RedisInfo.hbm.xml"/>
+		<mapping resource="model/mapping/DbCodeGenerateTemplet.hbm.xml"/>
+		<mapping resource="model/mapping/Params.hbm.xml"/>
+	</session-factory>
+</hibernate-configuration>

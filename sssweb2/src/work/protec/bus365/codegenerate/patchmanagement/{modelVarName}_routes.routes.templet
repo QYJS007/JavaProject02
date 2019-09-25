@@ -1,0 +1,16 @@
+GET		/${modelVarName}				${actionName}.index
+GET		/${modelVarName}/search			${actionName}.search
+POST	/${modelVarName}/save			${actionName}.save
+POST	/${modelVarName}/delete			${actionName}.delete
+
+
+
+#for(String columnName : serviceParamMap.autoCompleteList)
+	#set(String[] arr=columnName.split('_'))
+	else if("${modelVarName}_${arr[1]}".equals(type)){
+		result.fieldslist = Arrays.asList("${arr[4]}", "${arr[5]}");
+		result.nameslist = Arrays.asList("${arr[2]}", "${arr[3]}");
+		result.fieldswidthlist = Arrays.asList(80,100);
+		sql = "select t.${arr[2]},t.${arr[3]} from ${arr[1]} t where (t.${arr[3]} like '%"+text+"%')";
+	}
+#end

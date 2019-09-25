@@ -1,0 +1,48 @@
+@@param:{
+
+	//生成配置
+	// * 输出位置(console表示控制台,desktop为桌面,其它值为指定路径)
+	out_path:console //F:\git\bj_1602_packagemngr\SRC\patchManagement
+	// * 跟表相关的需要生成的模板(多个文件用逗号隔开,可以写all)
+	table_templet_list:all
+	// * 跟表无关的需要生成的模板(多个文件用逗号隔开)
+	other_templet_list:
+
+
+	//数据库信息
+	// * 基本信息
+	db_type:mysql //mysql or sqlserver
+	db_ip:192.168.3.60
+	db_port:3311
+	db_name:qtrp_p
+	db_username:wztkt
+	db_password:bus365_0502
+	// * 表前缀
+	tablePrefix:
+	// * 需要生成代码的表名(其它表示自定义,多个表名用逗号隔开)
+	table_list:businessbaseconfig
+	// * 读取数据库信息的工具类
+	databaseInfo:{:new work.codegenerate.base.DatabaseInfo(db_type,db_ip,db_port,db_name,db_username,db_password)}
+	tableInfoMap:{:@work.codegenerate.base.DatabaseUtils@getTableInfoByDatabase(databaseInfo,table_list.split(","))}
+	
+	
+	//路径和名称信息
+	// * 包名称
+	modelPackageName:models
+	servicePackageName:bp
+	actionPackageName:controllers
+	// * 后缀
+	modelSuffix:
+	serviceSuffix:BP
+	actionSuffix:Action
+	// * 指定文件后缀在项目中的相对路径
+	javaDir:app
+	htmlDir:app/views/system
+	jsDir:public/javascripts/system
+	routesDir:conf
+	
+	
+	//工具类
+	commonUtils:{:new work.codegenerate.base.CommonUtils()}
+	
+}

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="model.generate.RemoteProject" table="t_remote_project">
+		<id name="id">
+			<generator class="native"></generator>
+		</id>
+		<property name="type"></property>
+		<property name="name"></property>
+		<property name="ip"></property>
+		<property name="username"></property>
+		<property name="password"></property>
+		<property name="path"></property>
+		<property name="port"></property>
+		<property name="commandGroupId"></property>
+		<property name="command"></property>
+		<property name="localProject"></property>
+		<property name="istest"></property>
+	</class>
+</hibernate-mapping>

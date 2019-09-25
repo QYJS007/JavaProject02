@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>sssweb-svn提交记录</title>
+        <meta charset="utf-8">
+        <style>
+        	body { margin:0; font-family:Simsun;}
+        	a,a :visited { color:#06c; text-decoration:none;}
+        	h1 { margin:0 auto; text-align:center;}
+        	.content { width:1000px; height:540px; border:1px solid; margin:0 auto; padding:0 40px;}
+        	font { font-size:9px; color:#666; margin-left:30px;}
+        	.span1 { display:inline-block; margin-top:20px;}
+        	select{ width:286px; height:20px; }
+        	.text { width:450px; height:20px; }
+        	.div1 {width:480px; height:400px; float:left; margin:20px 20px 0 30px;}
+        	#btn { margin-left:30px;}
+        	#ul1 { width:990px; height:160px; margin:10px 0; border:1px solid #ccc; padding:5px; overflow:scroll; white-space:nowrap; list-style:none;}
+        	#ul2 { width:990px; height:220px; border:1px solid #ccc; padding:5px; margin:5px 0; overflow:scroll; white-space:nowrap; list-style:none;}
+        	.liClickColor { background:#8FBC8F;}
+			.liOverColor { background:#ccc;}
+			#copy,#export { float:right; margin-left:10px;}
+			.code_add { display:inline-block; width:1500px; height:15px; background:#a8ccf0; margin:-2px; padding:0;}
+			.code_modify { display:inline-block; width:1500px; height:15px; background:#ffba77; margin:-2px; padding:0;}
+        </style>
+        <script src="/sssweb2/public/javascripts/ZeroClipboard.js"></script>
+        <script src="/sssweb2/public/javascripts/utils.js"></script>
+        <script>
+        	window.onload=function(){
+        		
+        		var textArr = document.getElementsByTagName('input');
+        		var radio1 = textArr[0];
+        		var radio2 = textArr[1];
+        		var oBtn = textArr[2];
+        		var oSelect = document.getElementsByTagName('select')[0];
+        		var oUl = document.getElementById("ul1");
+        		var oUl2 = document.getElementById("ul2");
+        		var text = document.getElementsByTagName('text')[0];
+        		var oBtnCopy = document.getElementById('copy');
+        		var oBtnExport = document.getElementById('export');
+        		
+        		//获取所有模板
+        		var url = 'null/svn_getTemplet';
+    			ajax(url,null,function(str){
+    				//将模板添加到选项中
+    				var arr = str.split('\r\n');
+    				for(var i=0;i<arr.length;i++){
+    					var arr2 = arr[i].split('=');
+    					var oOption = document.createElement('option');
+    					oOption.innerHTML = arr2[0];
+    					oOption.value = arr2[1];
+    					oSelect.appendChild(oOption);
+    				}
+    			});
+    			
+        		//点击查询按钮
+        		oBtn.onclick = function(){
+        			oUl.innerHTML='';
+        			oUl2.innerHTML = '';
+        			var range = radio1.checked?'1':radio2.value;
+        			var url = 'null/svn_log';
+        			var param = 'project='+encodeURIComponent(oSelect.value,"utf-8");
+        			param += "&range="+encodeURIComponent(range,"utf-8");
+        			ajax(url,param,function(json){
+        				eval("json = "+json);
+        				
+        				var arr = [];
+        				if(json.version){
+        					//对象
+        					arr.push(json);
+        				}else{
+        					//集合
+        					arr = json;
+        				}
+        				
+        				var s = '';
+        				var space = '&nbsp;&nbsp;&nbsp;&nbsp;';
+        				for(var i=0;i<arr.length;i++){
+        					var obj = arr[i];
+        					
+        					//获取文件路径
+            				var pathList = obj.pathMarkMap;
+            				var pathArr = [];
+            				for(var key in pathList){
+            					if(key.substring(0,6)!='conf/' && key.indexOf('.')==-1 && key.indexOf('conf/routes')==-1){
+            						//文件夹
+            					}else{
+            						//文件
+            						if(pathList[key]=='D'){
+                						pathArr.push(key+'(删除的文件)');
+                					}else if(key=='conf/application.conf' || key=='app/resource.properties'){
+                						pathArr.push(key+'(忽略的文件)');
+               						}else{
+               							pathArr.push(key);
+               						}
+            					}
+            					
+            				}
+            				//排序,拼凑字符串
+            				pathArr.sort();
+            				var s2 = '';
+            				for(var j=0;j<pathArr.length;j++){
+            					s2+=pathArr[j]+'\r\n';
+            				}
+            				
+            				var space2 = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+            				space2 = space2.substring(0,Math.floor((16-obj.auth.length)/2)*6)+((16-obj.auth.length)%2==0?'':' ');
+            				s += '<li project="'+oSelect.value+'" version="'+obj.version+'" path="'+s2+'">'+obj.version+space+obj.date+space+obj.auth+space2+space+(obj.message?obj.message:'无')+'</li>';
+        				}
+        				
+        				oUl.innerHTML = s;
+        				oUl.children[0].click();
+        			});
+        		}
+        		
+        		//利用事件委托为li添加点击事件和鼠标移入移出事件
+				oUl.onclick=function(ev){
+					var e = window.event||ev;
+					var obj = e.srcElement||e.target;		//获取事件源
+					if(obj.nodeName.toUpperCase()!='UL'){	//防止移入ul触发事件
+						//将所有li背景还原
+						var aLi = this.getElementsByTagName('li');
+						for(var i=0;i<aLi.length;i++){
+							aLi[i].className = '';
+							aLi[i].setAttribute('lastClass','');//记录颜色
+						}
+						//将指定li背景改变
+						var oLi;
+						if(obj.nodeName.toUpperCase()=='A'){
+							oLi = obj.parentNode;
+						}else if(obj.nodeName.toUpperCase()=='SPAN'){
+							oLi = obj.parentNode.parentNode;
+						}else if(obj.nodeName.toUpperCase()=='LI'){
+							oLi = obj;
+						}
+						oLi.className='liClickColor';
+						oLi.setAttribute('lastClass','liClickColor');//记录颜色
+						
+						//设置oUl2的内容
+						var pathStr = oLi.getAttribute('path');
+						var project = oLi.getAttribute('project');
+						var version = oLi.getAttribute('version');
+						var arr = pathStr.split('\n');
+						var str = '';
+						for(var i=0;i<arr.length;i++){
+							str += '<li project="'+project+'" version="'+version+'">'+arr[i]+'</li>';
+						}
+						oUl2.setAttribute('path',pathStr);
+						oUl2.innerHTML=str;
+					}
+				};
+				oUl2.onclick=function(ev){
+					var e = window.event||ev;
+					var obj = e.srcElement||e.target;		//获取事件源
+					if(obj.nodeName.toUpperCase()!='UL'){	//防止移入ul触发事件
+						//将所有li背景还原
+						var aLi = this.getElementsByTagName('li');
+						for(var i=0;i<aLi.length;i++){
+							aLi[i].className = '';
+							aLi[i].setAttribute('lastClass','');//记录颜色
+						}
+						//将指定li背景改变
+						var oLi;
+						if(obj.nodeName.toUpperCase()=='A'){
+							oLi = obj.parentNode;
+						}else if(obj.nodeName.toUpperCase()=='SPAN'){
+							oLi = obj.parentNode.parentNode;
+						}else if(obj.nodeName.toUpperCase()=='LI'){
+							oLi = obj;
+						}
+						oLi.className='liClickColor';
+						oLi.setAttribute('lastClass','liClickColor');//记录颜色
+						
+					}
+				};
+				oUl.onmouseover=oUl2.onmouseover=function(ev){
+					var e = window.event||ev;
+					var obj = e.srcElement||e.target;		//获取事件源
+					if(obj.nodeName.toUpperCase()!='UL'){	//防止移入ul触发事件
+						//将指定li背景改变
+						var oLi;
+						if(obj.nodeName.toUpperCase()=='A'){
+							oLi = obj.parentNode;
+						}else if(obj.nodeName.toUpperCase()=='SPAN'){
+							oLi = obj.parentNode.parentNode;
+						}else if(obj.nodeName.toUpperCase()=='LI'){
+							oLi = obj;
+						}
+						//改变颜色
+						oLi.className='liOverColor';
+					}
+				};
+				oUl.onmouseout=oUl2.onmouseout=function(ev){
+					var e = window.event||ev;
+					var obj = e.srcElement||e.target;		//获取事件源
+					if(obj.nodeName.toUpperCase()!='UL'){	//防止移入ul触发事件
+						//将指定li背景改变
+						var oLi;
+						if(obj.nodeName.toUpperCase()=='A'){
+							oLi = obj.parentNode;
+						}else if(obj.nodeName.toUpperCase()=='SPAN'){
+							oLi = obj.parentNode.parentNode;
+						}else if(obj.nodeName.toUpperCase()=='LI'){
+							oLi = obj;
+						}
+						//还原颜色
+						var lastColor = oLi.getAttribute('lastClass');
+						oLi.className=lastColor?lastColor:'';
+					}
+				};
+				
+				//复制
+				copy('copy',function(){
+					return oUl2.getAttribute('path').toString();
+				});
+				
+				//导出文件
+				oBtnExport.onclick = function(){
+					var url = 'null/svn_export';
+        			var param = 'projectPath='+encodeURIComponent(oSelect.value,"utf-8");
+        			param += "&pathStr="+oUl2.getAttribute('path');
+        			ajax(url,param,function(json){
+        				alert(json);
+        			});
+				}
+				
+        	}
+        </script>
+    </head>
+    <body>
+    	<div class="content">
+    		<span class="span1">
+	    		项目:<select></select>
+	   		</span>
+	   		<span class="span1">
+	   			范围:
+   				<input type="radio" name="range" value="1" checked="checked">top 1
+   				<input type="radio" name="range" value="40">top 20
+   			</span>
+   			<input id="btn" type="button" value="查询">
+   			<ul id="ul1"></ul>
+   			修改的文件路径: <input id="copy" type="button" value="复制路径"><input id="export" type="button" value="导出文件">
+   			<ul id="ul2"></ul>
+    	</div>
+    </body>
+</html>

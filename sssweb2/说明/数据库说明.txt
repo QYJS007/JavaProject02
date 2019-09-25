@@ -1,0 +1,57 @@
+远程项目信息 t_remote_project
+	id,类型,名称,远程服务器ip,用户名,密码,路径,端口,命令组id,对应的本地项目(打包用),是否是测试环境
+	id,type,name,ip,username,password,path,port,commandGroupId,localProject,istest
+远程项目命令组 t_remote_command_group
+	id,名称
+	id,name
+远程项目命令 t_remote_command
+	id,远程项目命令组id,命令名称,命令,使用场景
+	id,commandGroupId,name,command,func
+本地项目信息 t_local_project
+	id,名称,路径,打包的文件夹,打包的文件
+	id,name,path,packDir,packFile
+查询模板表 t_query_templet
+	id,模板名称,查询路径,路径规则,排除的路径规则,文件名称规则,排除的文件名称规则,编码
+	id,name,path,pathPattern,noPathPattern,fileNamePattern,noFileNamePattern,encoding
+发送http请求表 t_http_templet
+	id,类型,模板名称,请求地址,请求方式,请求头,参数,编码
+	id,type,name,url,method,head,param,encoding
+单行模板替换表 t_line_replace_templet
+	id,模板名称,旧模板,新模板,待替换文本示例
+	id,name,oldTemplet,newTemplet,text
+模板代码生成表 t_code_generate_templet
+	id,模板名称,代码,参数
+	id,name,code,param
+字符串处理表 t_string_handle_templet
+	id,类型,模板名称,代码,待处理文本示例
+	id,type,name,code,text
+代码块调用表 t_code_call_templet
+	id,模板名称,代码
+	id,name,code
+http批量下载表 t_http_down_templet
+	id,模板名称,目标链接,链接正则,名称正则,作为下一层链接,下一页链接,编码,运行间隔
+	id,name,url,urlRegex,nameRegex,nextLayer,nextPage,encoding,interval
+hadoop文件路径表 t_hadoop_file_path
+	id,逻辑路径,文件路径,创建时间
+	id,ip,logicPath,filePath,createTime
+数据库模板代码生成表 t_db_code_generate_templet
+	id,功能,模板名称,代码,参数
+	id,type,name,code,param
+参数表 t_params
+	id,描述,名称,值
+	id,remark,name,value
+	
+############后台管理系统用表############
+数据字典表 t_dictionary
+	id,名称,表名,列名,描述
+	id,name,tableName,columnName,remark
+字典详情表 t_dictionary_detail
+	id,字典表id,值,展示文本,描述
+	id,dictionaryId,value,showText,remark
+	
+数据库信息表
+	id,名称,ip,端口,类型,用户名,密码,数据库名称
+	id,name,ip,port,type,username,password,dbname
+redis信息表
+	id,名称,ip,端口,密码
+	id,name,ip,port,password

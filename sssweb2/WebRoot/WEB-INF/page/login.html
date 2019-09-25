@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="cache-control" content="no-cache">
+<meta http-equiv="expires" content="0">
+<style>
+.content { width:260px; height:160px; border:1px solid; padding:20px 0 0 50px; margin:100px auto;}
+#username,#password { width:150px;}
+#checkNum { width:80px;}
+.submit { width:100px; height:25px; margin-left:60px;}
+</style>
+<script>
+	window.onload = function(){
+		var oForm = document.getElementsByTagName('form')[0];
+		oForm.onsubmit = function (){
+			var aInput = oForm.getElementsByTagName('input');
+		    var arr = ['用户名','密码','验证码'];
+			for(var i=0;i<aInput.length;i++){
+				if(aInput[i].value==''){
+					alert("请输入"+arr[i]);
+					return false;
+				}
+			}
+			return true; 
+		}
+	}
+	
+	function checkNumberImage(){
+		var imageNumber = document.getElementById("imageNumber");
+		imageNumber.src = "/sssweb2/LoginController/getCheckNum.do?t="+new Date().getTime();
+	}
+</script>
+</head>
+<body>
+	<div class="content">
+		<form action="/sssweb2/LoginController/login.do" method="post">
+			用户名：<input id="username" name="username"/><br/><br/>
+			密　码：<input id="password" type="password" name="password"/><br/><br/>
+			验证码：<input id="checkNum" name="checkNum" maxlength="4">
+			<img src="/sssweb2/LoginController/getCheckNum.do" name="imageNumber" id="imageNumber" style="cursor:pointer; position:relative; top:5px;" title="点击可更换图片" height="20" onclick="checkNumberImage()"/>
+			<br/><br/>
+			<input class="submit" type="submit" value="登陆"/><br/>
+		</form>
+	</div>
+</body>
+</html>

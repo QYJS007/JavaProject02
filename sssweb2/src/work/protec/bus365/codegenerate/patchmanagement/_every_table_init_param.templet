@@ -1,0 +1,20 @@
+@@param:{
+	//已知初始参数tableName
+	
+	tableInfo:{:tableInfoMap.get(tableName)}
+	modelName:{:serviceParam.getModelName(tableName,tablePrefix)}
+	modelVarName:{:commonUtils.firstCharLowerCase(modelName)}
+	daoName:{:modelName+daoSuffix}
+	daoVarName:{:modelVarName+daoSuffix}
+	serviceName:{:modelName+serviceSuffix}
+	serviceVarName:{:modelVarName+serviceSuffix}
+	actionName:{:modelName+actionSuffix}
+	primaryKeyName:{:tableInfo.primaryKeyName}
+	primaryKeyType:{:tableInfo.columnInfoMap.get(primaryKeyName).javaType}
+	
+	service2Name:{:modelName+service2Suffix}
+	service2VarName:{:modelVarName+service2Suffix}
+	
+	//search方法查询条件
+	serviceParamMap:{:serviceParam.getServiceParamMap(tableInfo)}
+}

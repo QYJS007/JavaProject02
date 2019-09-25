@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>sssweb-word接口生成</title>
+        <meta charset="utf-8">
+        <style>
+        	body { margin:0;}
+        	.content { width:950px; height:500px; border:1px solid; margin:0 auto; padding:15px 45px;}
+        	.span1 { display:inline-block; margin-bottom:15px;}
+        	.select1 { width:402px; height:20px; }
+        	.select2 { width:190px; height:20px; }
+        	.select3 { width:160px; height:57px; position:absolute;}
+        	.text { width:280px; height:20px; }
+        	.div1 { width:460px; height:465px; float:left;}
+        	.textarea1{ width:440px; height:270px;}
+        	.textarea2 { width:440px; height:140px; white-space:pre; overflow-wrap:inherit;}
+        	#codeDiv{ float:left; width:480px; height:440px; white-space:nowrap;　margin-bottom:20px;}
+        	#codeDiv pre { margin-top:0;}
+        	
+        	a,a :visited { color:#06c; text-decoration:none; font-size:9px; }
+        </style>
+		<script src="/sssweb2/public/ace-editor/ace.js"></script>
+		<script src="/sssweb2/public/ace-editor/mode-php.js"></script>
+		<script src="/sssweb2/public/ace-editor/theme-eclipse.js"></script>
+        <script src="/sssweb2/public/javascripts/ZeroClipboard.js"></script>
+        <script src="/sssweb2/public/javascripts/utils.js"></script>
+        <script>
+        	window.onload=function(){
+        		//ace编辑器
+        		var editor1 = createEditor('textarea1',true);
+        		var editor2 = createEditor('textarea2',true);
+        		var editor3 = createEditor('codeDiv',true);
+        		
+        		var aSelect = document.getElementsByTagName('select');
+        		var dbInfoSelect = aSelect[0];
+        		var interNameSelect = aSelect[1];
+        		
+        		var codeDiv = document.getElementById('codeDiv');
+        		//获取所有word地址
+        		var url = '/sssweb2/WordInterGenerateController/getAllWordPath.do';
+    			ajax(url,null,function(str){
+    				//将模板添加到选项中
+    				var arr = JSON.parse(str);
+    				for(var i=0;i<arr.length;i++){
+    					var name = arr[i];
+    					var oOption = document.createElement('option');
+    					oOption.innerHTML = arr[i];
+    					oOption.value = arr[i];
+    					dbInfoSelect.appendChild(oOption);
+    				}
+    				//加载第一次选择的模板和参数示例
+    				dbInfoSelect.onchange();
+    			});
+        		
+    			//当选择word时,获取接口名称
+        		dbInfoSelect.onchange = function(){
+        			interNameSelect.innerHTML = '<option value=""></option>';
+        			
+        			if(!dbInfoSelect.value){
+        				return;
+        			}
+        			var url = '/sssweb2/WordInterGenerateController/getAllInterName.do';
+        			var params = 'wordPath='+dbInfoSelect.value;
+        			ajax(url,params,function(str){
+        				var arr = JSON.parse(str);
+        				for(var i=0;i<arr.length;i++){
+        					var oOption = document.createElement('option');
+        					oOption.innerHTML = arr[i];
+        					oOption.value = arr[i];
+        					interNameSelect.appendChild(oOption);
+        				}
+        			});
+        		}
+    			
+        		//获取模板和参数
+        		var url = '/sssweb2/WordInterGenerateController/getTempletAndParam.do';
+    			ajax(url,null,function(str){
+    				var obj = JSON.parse(str);
+    				editor1.setContentValue(obj.templet);
+    				editor2.setContentValue(obj.templetParam);
+    			});
+        		
+    			//当点击生成按钮时
+        		var oBtn = document.getElementById('btn');
+        		oBtn.onclick = function(){
+        			if(!editor1.getContentValue()){
+        				alert('模板不能为空');
+        				return false;
+        			}
+        			if(!interNameSelect.value){
+        				alert('请选择接口');
+        				return false;
+        			}
+        			
+        			editor3.setContentValue('');
+        			
+        			var url = '/sssweb2/WordInterGenerateController/generate.do';
+        			var params = "templet="+encodeURIComponent(editor1.getContentValue(),"utf-8");
+        			params += "&paramStr="+encodeURIComponent(editor2.getContentValue(),"utf-8");
+        			params += "&wordPath="+encodeURIComponent(dbInfoSelect.value,"utf-8");
+        			params += "&interName="+encodeURIComponent(interNameSelect.value,"utf-8");
+        			ajax(url,params,function(str){
+        				//将< 和 > 替换
+        				editor3.setContentValue(str);
+        			});
+        		}
+        		
+        		//点击查看所有错误时
+        		document.getElementById('getAllError').onclick = function(){
+        			if(!dbInfoSelect.value){
+        				alert('word路径不能为空');
+        				return;
+        			}
+        			
+        			var url = '/sssweb2/WordInterGenerateController/getAllError.do';
+        			var params = "wordPath="+encodeURIComponent(dbInfoSelect.value,"utf-8");
+        			ajax(url,params,function(str){
+        				editor3.setContentValue(str);
+        			});
+        			
+        		}
+        		
+        		//复制结果
+				copy('copy',function(){
+					return editor3.getContentValue();
+				});
+        		
+        	}
+        </script>
+    </head>
+    <body>
+    	<div class="content">
+    		<span class="span1">
+    			文件:<select class="select1"><option value=""></option></select>　接口:<select class="select2"></select>　
+    			<input id="btn" type="button" value="生成">
+   				<input id="copy" type="button" value="复制结果">
+    			<a href="javascript:alert('会自动添加1个参数:inter');" style="display:inline-block; margin-left:5px;">说明</a>
+    			<a id="getAllError" href="javascript:void(0);" style="display:inline-block; margin-left:5px;">查看错误</a>
+    		</span>
+    		<br>
+   			<div class="div1">
+	   			模板:<br>
+	   			<div id="textarea1" class="textarea1"></div>
+	   			参数:<br>
+	   			<div id="textarea2" class="textarea2"></div>
+   			</div>
+   			代码:<br>
+   			<div id="codeDiv"></div><br>
+    	</div>
+    </body>
+</html>

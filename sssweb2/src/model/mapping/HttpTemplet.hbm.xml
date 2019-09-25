@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="model.generate.HttpTemplet" table="t_http_templet">
+		<id name="id">
+			<generator class="native"></generator>
+		</id>
+		<property name="type"></property>
+		<property name="name"></property>
+		<property name="url"></property>
+		<property name="method"></property>
+		<property name="head"></property>
+		<property name="param"></property>
+		<property name="encoding"></property>
+	</class>
+</hibernate-mapping>

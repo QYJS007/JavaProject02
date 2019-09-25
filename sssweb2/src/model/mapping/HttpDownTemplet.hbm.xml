@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="model.generate.HttpDownTemplet" table="t_http_down_templet">
+		<id name="id">
+			<generator class="native"></generator>
+		</id>
+		<property name="name"></property>
+		<property name="url"></property>
+		<property name="urlRegex"></property>
+		<property name="nameRegex"></property>
+		<property name="nextLayer"></property>
+		<property name="nextPage"></property>
+		<property name="encoding"></property>
+		<property name="intervalTime"></property>
+	</class>
+</hibernate-mapping>

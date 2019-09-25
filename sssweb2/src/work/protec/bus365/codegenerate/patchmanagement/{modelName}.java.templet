@@ -1,0 +1,47 @@
+package ${modelPackageName};
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+#if(serviceParamMap.autoCompleteList.size()>0)
+import play.db.jpa.JPA;
+#end
+
+#if(commonUtils.containsDateColumn(tableInfo))
+import java.util.Date;
+#end
+
+@Entity
+@Table(name="${tableName}")
+public class ${modelName}  extends SimpleModel{
+
+#if(primaryKeyName=='')
+	!!!!!主键在列中不存在,${tableName},${primaryKeyName}
+#else
+	@Id
+	public ${primaryKeyType} ${primaryKeyName};
+#end
+#for(Map.Entry entry : tableInfo.columnInfoMap)
+	#if(primaryKeyName!=entry.key)
+	public ${entry.value.javaType} ${entry.key}; //${entry.value.comment}
+	#end
+#end
+	
+	public Integer getId() {
+		return ${primaryKeyName};
+	}
+	
+#for(String columnName : serviceParamMap.autoCompleteList)
+	#set(String[] arr=columnName.split('_'))
+	public String get${arr[1]}${commonUtils.firstCharUpperCase(arr[3])}(){
+		try {
+			if(${arr[0]}!=null){
+				return JPA.em().createNativeQuery("select ${arr[3]} from ${arr[1]} where ${arr[2]}="+${arr[0]}).getSingleResult().toString();
+			}
+		} catch (Exception e) {
+		}
+		return null;
+	}
+#end
+}

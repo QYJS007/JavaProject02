@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>sssweb</title>
+        <meta charset="utf-8">
+        <style>
+        	* {padding:0;margin:0;}
+			.b-tab {width:1222px;margin:5px auto;}
+			.b-tab>div {width:1220px;display:none;height:568px;float:left; border:1px solid;}
+			.b-tab>input {width:100px;float:left;height:30px;line-height:30px;}
+			.b-tab input.active {background:#B4D0E6;}
+			.b-tab div.active {display:block;}
+			.b-tab>div iframe{width:100%;height:100%; border:0; margin-top:5px;}
+			
+			a,a :visited { color:#06c; text-decoration:none;}
+			.floatA { float:left; font-size:14px; margin-right:20px;}
+			
+			#quickPositionInput { position:absolute; right:5px; top:5px; width:120px; border:1px solid #eee;}
+			#ul1 { position:absolute; right:5px; top:25px; font-size:8px; list-style:none; background:#fff; border:1px solid; max-height:500px; overflow:auto;}
+			#ul1 li { padding:2px; width:330px; overflow:hidden; white-space:nowrap;}
+			.typeSpan { display:inline-block; width:100px; color:#CD00CD;}
+			.nameSpan { }
+			.liClickColor { background:#8FBC8F;}
+			.liOverColor { background:#ccc;}
+        </style>
+        <script src="/sssweb2/public/javascripts/utils.js"></script>
+        <script>
+	        window.onload=function(){
+	        	tab('j-tab');
+	        	
+	        	//第一个选项卡显示
+	        	document.getElementsByTagName('div')[0].children[0].onclick();
+	        	
+	        	//快速定位功能
+	        	var oInput = document.getElementById('quickPositionInput');
+	        	var oUl1 = document.getElementById('ul1');
+	        	var aLi = oUl1.getElementsByTagName('li');
+	        	
+	        	//获取所有type和name
+        		var url = '/sssweb2/QuickPositionController/getAllTypeAndName.do';
+    			ajax(url,null,function(str){
+    				//将模板添加到选项中
+    				var arr = eval(str);
+    				var liStr = '';
+    				for(var i=0;i<arr.length;i++){
+    					liStr += '<li><span class="typeSpan">'+arr[i].type+'</span><span class="nameSpan">'+arr[i].name+'</span></li>';
+    				}
+    				oUl1.innerHTML = liStr;
+    			});
+    			
+    			//当键盘抬起时,通过输入内容筛选li
+	        	oInput.onkeyup = function(){
+	        		if(!oInput.value){
+	        			oUl1.style.display = 'none';
+	        			return;
+	        		}
+	        		if(oInput.value[oInput.value.length-1]=='@'){
+	        			//如果输入的是@,则不进行操作
+	        			return;
+	        		}
+	        		
+	        		//筛选内容
+	        		var matchStrArr = oInput.value.split('@@');
+	        		for(var i=0;i<aLi.length;i++){
+	        			var content = aLi[i].children[1].innerHTML;
+	        			
+	        			//如果有一个不符合条件,则隐藏
+	        			var matchFlag = true;
+	        			for(var j=0;j<matchStrArr.length;j++){
+	        				if(content.toLowerCase().indexOf(matchStrArr[j].toLowerCase())==-1){
+		        				matchFlag = false;
+		        				break;
+		        			}
+	        			}
+	        			if(matchFlag){
+	        				//符合条件,显示
+	        				aLi[i].style.display = 'block';
+	        			}else{
+	        				aLi[i].style.display = 'none';
+	        			}
+	        		}
+	        		oUl1.style.display = 'block';
+	        	}
+	        	
+				//输入框键盘按下时,选择li
+				var nowLiNum = -1;
+	        	oInput.onkeydown = function(ev){
+	        		var e = window.event||ev;
+	        		
+	        		//获取所有显示li
+	        		var showLiArr = [];
+	        		for(var i=0;i<aLi.length;i++){
+	        			if(aLi[i].style.display!='none'){
+	        				showLiArr.push(aLi[i]);
+	        			}
+	        		}
+	        		if(showLiArr.length==0){
+	        			return;
+	        		}
+	        		
+	        		if(e.keyCode!='38' && e.keyCode!='40' && e.keyCode!='13'){
+	        			//将原来的li清除颜色
+		        		if(nowLiNum!=-1){
+		        			showLiArr[nowLiNum].className='';
+		        		}
+	        			nowLiNum = -1;//重置当前选中li
+	        			return;
+	        		}
+	        		
+	        		if(e.keyCode=='13'){
+	        			//回车
+	        			showLiArr[nowLiNum].click();
+	        			return;
+	        		}
+	        		
+	        		//将原来的li清除颜色
+	        		if(nowLiNum!=-1){
+	        			showLiArr[nowLiNum].className='';
+	        		}
+	        		
+	        		if(e.keyCode=='38'){
+	        			//上箭头
+	        			nowLiNum--;
+	        		}else if(e.keyCode=='40'){
+	        			//下箭头
+	        			nowLiNum++;
+	        		}
+	        		
+	        		if(nowLiNum<0){
+        				nowLiNum = showLiArr.length-1;
+        			}
+	        		if(nowLiNum==showLiArr.length){
+	        			nowLiNum = 0;
+	        		}
+	        		
+	        		//将新li加颜色
+	        		showLiArr[nowLiNum].className='liOverColor';
+	        		return false;
+	        	}
+	        	
+	        	//输入框失去焦点时令ul消失
+	        	oInput.onblur = function(){
+	        		//延迟消失,否则无法触发点击事件
+	        		setTimeout(function(){
+	        			oUl1.style.display = 'none';
+	        		},100);
+	        	}
+    			
+	        	//利用事件委托为li添加点击事件和鼠标移入移出事件
+				oUl1.onclick=function(ev){
+					var e = window.event||ev;
+					var obj = e.srcElement||e.target;		//获取事件源
+					if(obj.nodeName.toUpperCase()!='UL'){	//防止移入ul触发事件
+						//将所有li背景还原
+						var aLi = this.getElementsByTagName('li');
+						for(var i=0;i<aLi.length;i++){
+							aLi[i].className = '';
+							aLi[i].setAttribute('lastClass','');//记录颜色
+						}
+						
+						while(obj.nodeName.toUpperCase()!='LI'){
+							obj = obj.parentNode;
+						}
+						//快速定位
+						position(obj.children[0].innerHTML, obj.children[1].innerHTML);
+						oInput.value = '';
+					}
+				};
+				oUl1.onmouseover=function(ev){
+					var e = window.event||ev;
+					var obj = e.srcElement||e.target;		//获取事件源
+					if(obj.nodeName.toUpperCase()!='UL'){	//防止移入ul触发事件
+						//将指定li背景改变
+						while(obj.nodeName.toUpperCase()!='LI'){
+							obj = obj.parentNode;
+						}
+						var oLi = obj;
+						//改变颜色
+						oLi.className='liOverColor';
+					}
+				};
+				oUl1.onmouseout=function(ev){
+					var e = window.event||ev;
+					var obj = e.srcElement||e.target;		//获取事件源
+					if(obj.nodeName.toUpperCase()!='UL'){	//防止移入ul触发事件
+						//将指定li背景改变
+						while(obj.nodeName.toUpperCase()!='LI'){
+							obj = obj.parentNode;
+						}
+						var oLi = obj;
+						//还原颜色
+						var lastColor = oLi.getAttribute('lastClass');
+						oLi.className=lastColor?lastColor:'';
+					}
+				};
+				
+				//快速定位到指定功能
+				function position(type,name){
+					//切换到目标选项卡,新建标签,选中功能
+					var inputArr = document.getElementsByTagName('input');
+					var frameArr = document.getElementsByTagName('iframe');
+					var index = -1;
+					var selectId = -1;
+					if(type=='文件查询'){
+						index = 0;
+						selectId = 'templetSelect';
+					}else if(type=='发送http请求'){
+						index = 1;
+						selectId = 'functionSelect';
+					}else if(type=='字符串处理'){
+						index = 4;
+						selectId = 'functionSelect';
+					}else if(type=='代码块调用'){
+						index = 5;
+						selectId = 'functionSelect';
+					}else if(type=='ssh客户端操作'){
+						index = 7;
+						selectId = 'projectSelect';
+					}else{
+						alert('快速定位没有此类型的实现:'+type);
+						return;
+					}
+					
+					//选中选项卡
+					inputArr[index].click();
+					
+					setTimeout(function(){
+						//添加新页面
+						var subDocument = frameArr[index].contentWindow.document;
+						subDocument.getElementById('add').click();
+						
+						//选中下拉列表,按名称筛选
+						setTimeout(function(){
+							var frameArr2 = subDocument.getElementsByTagName('div')[0].getElementsByTagName('iframe');
+							var subDocument2 = frameArr2[frameArr2.length-1].contentWindow.document;
+							
+							var oSelect = subDocument2.getElementById(selectId);
+							var aOption = oSelect.getElementsByTagName('option');
+							var isPattern = false;
+							for(var i=0;i<aOption.length;i++){
+								if(aOption[i].innerHTML == name){
+									oSelect.value = aOption[i].value;
+									oSelect.onchange();
+									isPattern = true;
+									break;
+								}
+							}
+							if(!isPattern){
+								alert('没有对应名称的功能:'+name);
+							}
+						},800);
+					},800);
+				}
+				
+				
+				//当按下ctrl+s时,令快速定位文本框得到焦点
+				document.onkeydown = function(ev){
+					var e = window.event||ev;
+					if(e.keyCode=='83' && e.ctrlKey){
+						oInput.focus();
+						return false;
+					}
+				}
+	        }
+	        
+        </script>
+    </head>
+    <body>
+    	<div class="b-tab j-tab">
+    		<input class="j-btn" type="button" value="文件查询" page="/sssweb2/pageFrame.do?pageUrl=/sssweb2/QueryController/query_page.do"/>
+			<input class="j-btn" type="button" value="发送http请求" page="/sssweb2/pageFrame.do?pageUrl=/sssweb2/HttpController/http_page.do"/>
+			<input class="j-btn" type="button" value="单行模板替换" page="/sssweb2/pageFrame.do?pageUrl=/sssweb2/LineReplaceController/lineReplace_page.do"/>
+			<input class="j-btn" type="button" value="模板代码生成" page="/sssweb2/pageFrame.do?pageUrl=/sssweb2/CodeGenerateController/codeGenerate_page.do"/>
+			<input class="j-btn" type="button" value="字符串处理" page="/sssweb2/pageFrame.do?pageUrl=/sssweb2/StringHandleController/stringHandle_page.do"/>
+			<input class="j-btn" type="button" value="代码块调用" page="/sssweb2/pageFrame.do?pageUrl=/sssweb2/CodeCallController/codeCall_page.do"/>
+    		<input class="j-btn" type="button" value="ssh文件查询" page="/sssweb2/pageFrame.do?pageUrl=/sssweb2/SshQueryController/sshQuery_page.do"/>
+			<input class="j-btn" type="button" value="ssh客户端操作" page="/sssweb2/pageFrame.do?pageUrl=/sssweb2/SshClientController/sshClient_page.do"/>
+			<input class="j-btn" type="button" value="ssh代码打包" page="/sssweb2/pageFrame.do?pageUrl=/sssweb2/SshPackController/sshPack_page.do"/>
+			<input class="j-btn" type="button" value="http批量下载" page="/sssweb2/pageFrame.do?pageUrl=/sssweb2/HttpDownController/httpDown_page.do"/>
+			<input class="j-btn" type="button" value="git日志查询" page="/sssweb2/pageFrame.do?pageUrl=/sssweb2/GitLogController/gitLog_page.do"/>
+			<div class="j-box"><iframe></iframe></div>
+			<div class="j-box"><iframe></iframe></div>
+			<div class="j-box"><iframe></iframe></div>
+			<div class="j-box"><iframe></iframe></div>
+			<div class="j-box"><iframe></iframe></div>
+			<div class="j-box"><iframe></iframe></div>
+			<div class="j-box"><iframe></iframe></div>
+			<div class="j-box"><iframe></iframe></div>
+			<div class="j-box"><iframe></iframe></div>
+			<div class="j-box"><iframe></iframe></div>
+			<div class="j-box"><iframe></iframe></div>
+			<a class="floatA" href="/sssweb2/OtherBackController/index.do" target="_blank">后台管理</a>
+			<a class="floatA" href="/sssweb2/index2.do" target="_blank">第二页面</a>
+			<a class="floatA" href="/sssweb2/help.do" target="_blank">使用说明</a>
+		</div>
+		
+		<input id="quickPositionInput">
+		<ul id="ul1" style="display:none;">
+		</ul>
+		
+		<!-- 
+			<input class="j-btn" type="button" value="svn提交记录"/>
+			<div class="j-box"><iframe src="null/svn"></iframe></div>
+		-->
+    </body>
+</html>

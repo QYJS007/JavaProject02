@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>sssweb-代码打包</title>
+        <meta charset="utf-8">
+        <style>
+        	body { margin:0; font-family:Simsun;}
+        	a,a :visited { color:#06c; text-decoration:none;}
+        	h1 { margin:0 auto; text-align:center;}
+        	.content { width:1000px; height:520px; border:1px solid; margin:0 auto; padding:0 25px 0 15px;}
+        	.div0 { float:right; margin-top:12px; padding-bottom:15px; border-bottom:1px solid #c93;}
+        	.div1,.div2 { float:right; width:940px;}
+        	.span1 { display:inline-block; background:#9cf;}
+        	.span2 { display:inline-block;}
+        	.select0 { width:156px; margin-right:35px;}
+        	.select1 { width:130px;}
+        	#btnQuery,#btnExport { margin-left:15px;}
+        	.input1 { width:130px;}
+        	.input2 { width:394px;}
+        	.div3 { height:25px;}
+        	.div4 { float:left; width:270px;}
+        	.div5 { float:left; width:660px;}
+        	.select2 { width:230px; height:200px; margin-top:10px;}
+        	.textarea0 {width:223px; height:180px; margin-top:5px;}
+        	.textarea1 {width:630px; height:180px; margin-top:5px;}
+        	.textarea2 {width:630px; height:195px; margin-top:6px;}
+        	
+        	#lastModifyMinute { width:40px; }
+        </style>
+        <script src="/sssweb2/public/javascripts/ZeroClipboard.js"></script>
+        <script src="/sssweb2/public/javascripts/utils.js"></script>
+        <script>
+        	window.onload=function(){
+        		var aSelect = document.getElementsByTagName('select');
+        		var aTextArea = document.getElementsByTagName('textarea');
+        		var oBtnQuery = document.getElementById('btnQuery');
+        		var oBtnExport = document.getElementById('btnExport');
+        		var oBtnPack = document.getElementById('btnPack');
+        		var oBtnExportPack = document.getElementById('btnExportPack');
+        		var oLocalFilePath = document.getElementById('localFilePath');
+        		var lastModifyMinute = document.getElementById('lastModifyMinute');
+        		var fileCount = document.getElementById('fileCount');
+        		
+        		//获取所有模板
+        		url = '/sssweb2/SshPackController/getLocalTemplet.do';
+    			ajax(url,null,function(str){
+    				if(str){
+	    				//将模板添加到选项中
+	    				//var arr = JSON.parse(str);
+	    				var arr = eval(str);
+	    				for(var i=0;i<arr.length;i++){
+	    					var oOption = document.createElement('option');
+	    					oOption.innerHTML = arr[i].name;
+	    					oOption.value = JSON.stringify(arr[i]);
+	    					aSelect[0].appendChild(oOption);
+	    				}
+	    				aSelect[0].onchange();
+    				}
+    			});
+    			
+    			//当改变下拉列表的值时
+    			aSelect[0].onchange = function(){
+    				//获取远程项目模板
+    				aSelect[2].innerHTML = '';
+            		var url = '/sssweb2/SshPackController/getRemoteTemplet.do';
+            		var params = 'localProject='+JSON.parse(aSelect[0].value).name;
+        			ajax(url,params,function(str){
+        				if(str){
+    	    				//将模板添加到选项中
+    	    				var arr = JSON.parse(str);
+    	    				for(var i=0;i<arr.length;i++){
+    	    					var oOption = document.createElement('option');
+    	    					oOption.innerHTML = arr[i].name;
+    	    					oOption.value = arr[i].id;
+    	    					aSelect[2].appendChild(oOption);
+    	    				}
+        				}
+        			});
+        			
+    				//设置路径模式
+    				var localproject = JSON.parse(aSelect[0].value);
+    				if(!localproject.packDir){
+    					localproject.packDir = '';
+    				}
+    				if(!localproject.packFile){
+    					localproject.packFile = '';
+    				}
+    				aTextArea[0].value = "@"+localproject.packDir.replace(/\r\n/g,'\r\n@')+"\r\n"+localproject.packFile.replace(/,/g,'\r\n');
+    				
+    				//清空文本框
+    				aTextArea[1].value = '';
+    				oLocalFilePath.value = '';
+    				
+    				//修改父页面的input的value
+        			var parentODiv = window.parent.document.getElementsByTagName('div')[0];
+        			var aDiv = parentODiv.getElementsByTagName('div');
+        			for(var i=0;i<aDiv.length;i++){
+	        			if(aDiv[i].className.indexOf('active')!=-1){
+	        				parentODiv.getElementsByTagName('input')[i].value = this.options[this.selectedIndex].text;
+	        			}
+        			}
+    			}
+    			
+    			aSelect[1].onchange = function(){
+    				//如果选中的是 最后修改时间自定义 则显示文本框,否则隐藏
+    				if(this.value=='lastModifyMinute'){
+    					lastModifyMinute.style.display = 'inline-block';
+    				}else{
+    					lastModifyMinute.style.display = 'none';
+    				}
+    				
+    				//将文本框禁用/启用
+    				if(this.value == 'all'){
+    					aTextArea[0].setAttribute('readonly','true');
+    					aTextArea[1].setAttribute('readonly','true');
+    				}else{
+    					aTextArea[0].removeAttribute('readonly');
+    					aTextArea[1].removeAttribute('readonly');
+    				}
+    				
+    				//设置路径模式
+    				var localproject = JSON.parse(aSelect[0].value);
+    				aTextArea[0].value = "@"+localproject.packDir.replace(/\r\n/g,'\r\n@')+"\r\n"+localproject.packFile.replace(/,/g,'\r\n');
+    				
+    				//清空文本框
+    				aTextArea[1].value = '';
+    				oLocalFilePath.value = '';
+    			}
+    			
+        		//点击查询按钮
+        		oBtnQuery.onclick = function(){
+        			aTextArea[1].value = '正在查询...';
+        			
+        			var type = aSelect[1].value;
+        			if(type=='lastModifyMinute'){
+        				type = 'lastModifyMinute-'+lastModifyMinute.value;
+    				}
+        			
+        			var url = '/sssweb2/SshPackController/query.do';
+        			var params = 'localPath='+JSON.parse(aSelect[0].value).path;
+        			params += '&pathPattern='+aTextArea[0].value;
+        			params += '&type='+type;
+        			ajax(url,params,function(str){
+        				if(str){
+        					aTextArea[1].value = str;
+        					fileCount.innerHTML = "("+(str.split('\r\n').length-1)+"个)";
+        				}
+        			});
+        		}
+        		
+				//导出文件
+				oBtnExport.onclick = function(){
+					if(aTextArea[1].value.split('\n').length<2){
+						alert('没有要导出的文件!');
+						return;
+					}
+					oLocalFilePath.value = '';
+					var url = '/sssweb2/SshPackController/export.do';
+        			var params = 'localPath='+JSON.parse(aSelect[0].value).path;
+        			params += '&text='+aTextArea[1].value;
+        			ajax(url,params,function(str){
+        				var info = JSON.parse(str);
+        				if(info.exportCount=='0'){
+        					aTextArea[1].value += '\r\n导出了0个文件';
+        				}else{
+        					aTextArea[1].value += '\r\n导出成功,导出了'+info.exportCount+'个文件(夹),路径为:'+info.exportPath;
+        					oLocalFilePath.value = info.exportPath;
+        				}
+        				aTextArea[1].scrollTop = 100000;
+        			});
+				}
+				
+				//当点击打包按钮时
+				oBtnPack.onclick = function(){
+					var arr = getSelectedArr(aSelect[2]);
+					var str = '';
+					for(var i=0;i<arr.length;i++){
+						str += arr[i];
+						if(i!=arr.length-1){
+							str += ',';
+						}
+					}
+					if(!str){
+						alert('请选择远程项目');
+						return;
+					}
+					
+					var localFilePath = oLocalFilePath.value;
+					if(!localFilePath){
+						alert('请输入本地文件路径');
+						return;
+					}
+
+					oBtnPack.setAttribute('disabled','true');
+					oBtnExportPack.setAttribute('disabled','true');
+					var url = '/sssweb2/SshPackController/pack.do';
+        			var params = 'remoteProjectIds='+encodeURIComponent(str,'utf-8');
+        			params += '&localFilePath='+encodeURIComponent(localFilePath,'utf-8');
+        			params += '&pathPattern='+aTextArea[0].value;
+        			params += '&type='+aSelect[1].value;
+        			ajax_long(url,params,function(str){
+        				aTextArea[2].value = str;
+        			},function(){
+        				oBtnPack.removeAttribute('disabled');
+        				oBtnExportPack.removeAttribute('disabled');
+        			},function(str){
+        				oBtnPack.removeAttribute('disabled');
+        				oBtnExportPack.removeAttribute('disabled');
+        			});
+				}
+				
+				//当点击导出+打包按钮时
+				oBtnExportPack.onclick=function(){
+					if(aTextArea[1].value=='' || aTextArea[1].value=='没有修改的文件'){
+						alert('没有修改的文件!');
+						return;
+					}
+					var arr = getSelectedArr(aSelect[2]);
+					var str = '';
+					for(var i=0;i<arr.length;i++){
+						str += arr[i];
+						if(i!=arr.length-1){
+							str += ',';
+						}
+					}
+					if(!str){
+						alert('请选择远程项目');
+						return;
+					}
+					oBtnExport.click();
+					setTimeout(aaa,100);
+					function aaa(){
+						if(oLocalFilePath.value){
+							oBtnPack.click();
+						}else{
+							setTimeout(aaa,100);
+						}
+					}
+				}
+				
+				//获取多行下拉列表的值
+				function getSelectedArr(obj){
+					var arr=[];
+					for(var i=0;i<obj.options.length;i++){
+						if(obj.options[i].selected){
+							arr.push(obj.options[i].value);
+						}
+					}
+					return arr;
+				}
+				
+				
+        	}
+        </script>
+    </head>
+    <body>
+    	<div class="content">
+    		<div class="div0">
+	    		<span class="span1">导出</span>　
+		    	<div class="div1">
+		    		<div class="div3">
+			    		本地项目:<select class="select0"></select>
+			    		<span class="span2">
+				   			打包类型:<select class="select1">
+				   				<!-- 
+					   				<option value="modify">修改但未提交</option>
+					   				<option value="commit">svn提交</option>
+				   				-->
+				   				<option value="lastModifyMinute">最近修改分钟</option>
+				   				<option value="path">指定路径打包</option>
+				   				<option value="all">全部打包</option>
+				   			</select>
+				   			<input id="lastModifyMinute" value="60">
+				   		</span>
+			   			<input id="btnQuery" type="button" value="查询">
+			   			<input id="btnExport" type="button" value="导出">
+		   			</div>
+		    		<div class="div4">
+	  					路径模式:<br>
+	  					<textarea class="textarea0" spellcheck="false"></textarea>
+  					</div>
+  					<div class="div5">
+	  					匹配文件路径<span id="fileCount"></span>:
+			   			<textarea class="textarea1" spellcheck="false" wrap="off"></textarea>
+		   			</div>
+				</div>
+			</div>
+	    	<div class="div0" style="border:0;">
+	    		<span class="span1">打包</span>　
+		    	<div class="div2">
+		    		<div class="div4">
+	  					远程项目:<br>
+	  					<select multiple="multiple" class="select2"></select>
+  					</div>
+  					<div class="div5">
+	  					本地文件路径:<input id="localFilePath" class="input2" readonly="true">
+			   			<input id="btnPack" type="button" value="打包">
+			   			<input id="btnExportPack" type="button" value="导出+打包">
+			   			<textarea class="textarea2" spellcheck="false" wrap="off"></textarea>
+		   			</div>
+	   			</div>
+    		</div>
+    	</div>
+    </body>
+</html>

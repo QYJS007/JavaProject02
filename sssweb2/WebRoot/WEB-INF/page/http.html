@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>sssweb-发送http请求</title>
+        <meta charset="utf-8">
+        <style>
+        	body { margin:0; font-family:Simsun;}
+        	a,a :visited { color:#06c; text-decoration:none;}
+        	h1 { margin:0 auto; text-align:center;}
+        	.content { width:960px; height:530px; border:1px solid; margin:0 auto; padding:0 40px;}
+        	font { font-size:9px; color:#666; margin-left:30px;}
+        	.span1 { display:inline-block; margin-top:18px;}
+        	#typeSelect{ width:110px; height:20px; margin-right:20px;}
+        	#functionSelect{ width:272px; height:20px; }
+        	.text { width:370px; height:20px; }
+        	.div1 {width:440px; height:395px; float:left; margin:20px 20px 0 0;}
+        	.textarea01 { width:420px; height:150px; white-space:nowrap; padding-left:5px;}
+        	.textarea02 { width:420px; height:225px; white-space:nowrap; padding-left:5px;}
+        	#codeDiv{ display:inline-block; width:490px; height:394px;}
+        	#codeDiv pre { margin-top:0;}
+        </style>
+        <script src="/sssweb2/public/ace-editor/ace.js"></script>
+		<script src="/sssweb2/public/ace-editor/mode-php.js"></script>
+		<script src="/sssweb2/public/ace-editor/theme-eclipse.js"></script>
+        <script src="/sssweb2/public/javascripts/ZeroClipboard.js"></script>
+        <script src="/sssweb2/public/javascripts/utils.js"></script>
+        <script>
+        	window.onload=function(){
+        		//ace编辑器
+        		var editor1 = createEditor('textarea1',true);
+        		var editor2 = createEditor('textarea2',true);
+        		var editor3 = createEditor('codeDiv');
+        		
+        		var textArr = document.getElementsByTagName('input');
+        		var text1 = textArr[0];
+        		var oMethodSelect = document.getElementById('methodSelect');
+        		var radio3 = textArr[1];
+        		var radio4 = textArr[2];
+        		var oBtn = document.getElementById('btn');
+        		var oBtn2 = document.getElementById('btn2');
+        		
+        		var oTypeSelect = document.getElementById('typeSelect');
+        		var oFunctionSelect = document.getElementById('functionSelect');
+        		var oTime = document.getElementById('time');
+        		var encoding = document.getElementById("encoding");
+        		
+        		//获取所有类型
+        		var url = '/sssweb2/HttpController/getAllType.do';
+    			ajax(url,null,function(str){
+    				if(str){
+	    				//将模板添加到选项中
+	    				var arr = JSON.parse(str);
+	    				for(var i=0;i<arr.length;i++){
+	    					var oOption = document.createElement('option');
+	    					oOption.innerHTML = arr[i];
+	    					oOption.value = arr[i];
+	    					oTypeSelect.appendChild(oOption);
+	    				}
+	    				oTypeSelect.onchange();
+    				}
+    			});
+    			//当选择类型时,获取指定类型的远程项目
+    			oTypeSelect.onchange = function(){
+    				oFunctionSelect.innerHTML = '<option></option>';
+            		var url = '/sssweb2/HttpController/getTempletListByType.do';
+            		var params = 'type='+oTypeSelect.value;
+        			ajax(url,params,function(str){
+        				if(str){
+    	    				//将模板添加到选项中
+    	    				var arr = JSON.parse(str);
+    	    				for(var i=0;i<arr.length;i++){
+    	    					var oOption = document.createElement('option');
+    	    					oOption.innerHTML = arr[i].name;
+    	    					oOption.value = JSON.stringify(arr[i]);
+    	    					oFunctionSelect.appendChild(oOption);
+    	    				}
+    	    				//加载第一次选择的模板和参数示例
+    	    				oFunctionSelect.onchange();
+        				}
+        			});
+    			}
+        		
+        		oFunctionSelect.onchange = function(){
+        			if(!oFunctionSelect.value){
+        				return;
+        			}
+       				var http = JSON.parse(oFunctionSelect.value);
+       				text1.value=http.url;
+       				oMethodSelect.value=http.method;
+       				if(http.head){
+       					editor1.setContentValue(http.head);
+       				}else{
+       					editor1.setContentValue('无');
+       				}
+       				if(http.param){
+       					editor2.setContentValue(http.param);
+       				}else{
+       					editor2.setContentValue('无');
+       				}
+        			
+        			//修改父页面的input的value
+        			var parentODiv = window.parent.document.getElementsByTagName('div')[0];
+        			var aDiv = parentODiv.getElementsByTagName('div');
+        			for(var i=0;i<aDiv.length;i++){
+	        			if(aDiv[i].className.indexOf('active')!=-1){
+	        				//去除第一个-前边的内容
+	        				var text = oFunctionSelect.options[oFunctionSelect.selectedIndex].text;
+	        				text = text.substring(text.indexOf('-')+1);
+	        				parentODiv.getElementsByTagName('input')[i].value = text;
+	        			}
+        			}
+        		}
+        		
+        		//发送请求
+        		oBtn.onclick = function(){
+        			if(!text1.value && editor2.getContentValue().indexOf('_codeBlock')==-1){
+        				alert('请求地址不能为空');
+        				return false;
+        			}
+        			editor3.setContentValue('');
+        			
+        			var encodingStr = encoding.checked?'gbk':'utf-8';
+        			var url = '/sssweb2/HttpController/send.do';
+        			var param = 'url='+encodeURIComponent(text1.value,"utf-8");
+        			param += "&method="+encodeURIComponent(methodSelect.value,"utf-8");
+        			param += "&encoding="+encodeURIComponent(encodingStr,"utf-8");
+        			param += "&headerStr="+encodeURIComponent(editor1.getContentValue()=='无'?'':editor1.getContentValue(),"utf-8");
+        			param += "&paramStr="+encodeURIComponent(editor2.getContentValue(),"utf-8");
+        			ajax(url,param,function(str){
+        				editor3.setContentValue(str);
+        				oTime.innerHTML = new Date().toLocaleTimeString();
+        			});
+        		}
+        		
+        		//json格式化
+        		oBtn2.onclick = function(){
+        			if(!editor3.getContentValue()){
+        				return;
+        			}
+        			var url = '/sssweb2/jsonFormat.do';
+        			var param = 'json='+encodeURIComponent(editor3.getContentValue(),"utf-8");
+        			ajax(url,param,function(str){
+        				editor3.setContentValue(str);
+        				oTime.innerHTML = new Date().toLocaleTimeString();
+        			});
+        		}
+        		
+        		//复制结果
+				copy('copy',function(){
+					return editor3.getContentValue();
+				});
+        		
+        	}
+        </script>
+    </head>
+    <body>
+    	<div class="content">
+    		<span class="span1">
+    			类型选择:<select id="typeSelect"><option></option></select>
+	    		模板:<select id="functionSelect"><option></option></select>
+	   		</span>
+	   		<br>
+	   		<span class="span1">
+   				请求地址:<input class="text" value="http://">
+   				<select id="methodSelect" name="method" style="margin-left:6px">
+   					<option value="get">get</option>
+   					<option value="post">post</option>
+   					<option value="put">put</option>
+   					<option value="delete">delete</option>
+   				</select>
+   				<input type="radio" name="encoding" value="utf-8" checked="checked">utf-8
+   				<input id="encoding" type="radio" name="encoding" value="gbk">gbk
+   			</span>
+   			<input id="btn" type="button" value="发送请求">
+   			<input id="btn2" type="button" value="json格式化">
+   			<input id="copy" type="button" value="复制结果"><br>
+   			<div class="div1">
+   				请求头:<br>
+   				<div id="textarea1" class="textarea01"></div>
+   				参数:<br>
+   				<div id="textarea2" class="textarea02"></div>
+   			</div>
+   			<span class="span1" style="margin-left:0;">请求结果:</span>　　　　　　　　　　　　　　　　　　　　<span id="time"></span>
+   			<div id="codeDiv"></div>
+    	</div>
+    </body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>sssweb-代码块调用</title>
+        <meta charset="utf-8">
+        <style>
+        	body { margin:0; font-family:Simsun;}
+        	.content { width:950px; height:510px; border:1px solid; margin:0 auto; padding:15px 45px 0;}
+        	select{ width:302px; height:20px; }
+        	.text { width:280px; height:20px; }
+        	.textarea1 { width:440px; height:460px; white-space:nowrap; float:left; margin-right:14px;}
+        	#codeDiv{ float:left; width:480px; height:460px; white-space:nowrap;　margin-bottom:20px;}
+        	#codeDiv pre { margin-top:0;}
+        </style>
+        <script src="/sssweb2/public/ace-editor/ace.js"></script>
+		<script src="/sssweb2/public/ace-editor/mode-php.js"></script>
+		<script src="/sssweb2/public/ace-editor/theme-eclipse.js"></script>
+        <script src="/sssweb2/public/javascripts/ZeroClipboard.js"></script>
+        <script src="/sssweb2/public/javascripts/utils.js"></script>
+        <script>
+        	window.onload=function(){
+        		//ace编辑器
+        		var editor1 = createEditor('textarea1',true);
+        		var editor2 = createEditor('codeDiv');
+        		
+        		var oSelect = document.getElementsByTagName('select')[0];
+        		//获取所有模板
+        		var url = '/sssweb2/CodeCallController/getAllTemplet.do';
+    			ajax(url,null,function(str){
+    				//将模板添加到选项中
+    				var arr = JSON.parse(str);
+    				for(var i=0;i<arr.length;i++){
+    					var oOption = document.createElement('option');
+    					oOption.innerHTML = arr[i].name;
+    					oOption.value = JSON.stringify(arr[i]);
+    					oSelect.appendChild(oOption);
+    				}
+    				//加载第一次选择的模板和参数示例
+    				oSelect.onchange();
+    			});
+        		
+    			//当选择模板时,加载模板内容
+        		oSelect.onchange = function(){
+    				editor1.setContentValue(JSON.parse(oSelect.value).code);
+        			
+        			//修改父页面的input的value
+        			var parentODiv = window.parent.document.getElementsByTagName('div')[0];
+        			var aDiv = parentODiv.getElementsByTagName('div');
+        			for(var i=0;i<aDiv.length;i++){
+	        			if(aDiv[i].className.indexOf('active')!=-1){
+	        				parentODiv.getElementsByTagName('input')[i].value = this.options[this.selectedIndex].text;
+	        			}
+        			}
+        		}
+        		
+        		var oBtn = document.getElementById('btn');
+        		oBtn.onclick = function(){
+        			if(!editor1.getContentValue()){
+        				alert('代码不能为空');
+        				return false;
+        			}
+        			
+        			editor2.setContentValue('');
+        			var timer = null;
+        			var nowStr = '';
+            		function updateDate(){
+            			timer = null;
+            			editor2.setContentValue(nowStr,true);
+            		}
+        			
+        			var url = '/sssweb2/CodeCallController/exec.do';
+        			var param = "code="+encodeURIComponent(editor1.getContentValue(),"utf-8");
+        			ajax_long(url,param,function(str){
+        				nowStr = str;
+        				if(timer==null){
+        					timer = setTimeout(updateDate,50);
+            			}
+        			},function(str){
+        				nowStr = str;
+        				updateDate();
+        			});
+        		}
+        		
+        		//复制结果
+				copy('copy',function(){
+					return editor2.getContentValue();
+				});
+        	}
+        </script>
+    </head>
+    <body>
+    	<div class="content">
+    		功能选择:<select id='functionSelect'></select>
+   			<input id="btn" type="button" value="运行">
+   			<input id="copy" type="button" value="复制结果">
+   			<br>
+   			代码:　　　　　　 　　　　　　　　　　　　　　　　　　　　结果:<br>
+	   		<div id="textarea1" class="textarea1"></div>
+   			<div id="codeDiv"></div><br>
+    	</div>
+    </body>
+</html>

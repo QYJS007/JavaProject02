@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>sssweb-regex</title>
+        <meta charset="utf-8">
+        <style>
+        	body { margin:0; font-family:Simsun;}
+        	.content { width:950px; height:510px; border:1px solid; margin:0 auto; padding:15px 45px 0;}
+        	#input1 { width:450px; margin-left:10px; margin-bottom:5px;}
+        	#codeDiv{ width:950px; height:425px; margin-bottom:10px; border:1px solid #ccc;}
+        	#textarea1,#pre1 { width:950px; height:425px; position:absolute; white-space: pre-wrap;word-wrap: break-word; margin-bottom:10px; border:1px solid #ccc; font-family:宋体; font-size:14px;  padding:0; margin-top:0;}
+        	#textarea1 { z-index:1; background-color:initial;}
+        	#pre1 { color:#ccc; overflow:auto;}
+        	#tishi { float:right; font-size:12px; color:#666;}
+        	#opacityText,#fontsizeText {width:20px; height:10px;}
+        	
+        	.tishidiv { font-size:9px; color:#333;}
+        	.tishidiv span { display:inline-block; width:10px; height:10px; margin-right:15px;}
+        	.span1 { background:rgba(128, 192, 255, 1);}
+        	.span2 { background:rgba(255, 128, 128, 1);}
+        	.span_1 { background:rgba(128, 255, 161, 1);}
+        	.span_2 { background:rgba(255, 175, 128, 1);}
+        	.span_3 { background:rgba(227, 128, 255, 1);}
+        	.span_4 { background:rgba(255, 240, 0, 1);}
+        	.span_5 { background:rgba(167, 42, 42, 1);}
+        </style>
+        <script>
+        	window.onload=function(){
+        		var input = document.getElementById('input1');
+        		var area = document.getElementById('textarea1');
+        		var pre = document.getElementById('pre1');
+        		var tishi = document.getElementById('tishi');
+        		var opacityText = document.getElementById('opacityText');
+        		var fontsizeText = document.getElementById('fontsizeText');
+        		//当检测内容或正则内容改变时 检测
+        		input.onkeyup = area.onkeyup = function(){
+        			//获取文本域的值
+        			var str = getNewEscapeStr(area.value);
+        			var newInnerHTML = str;
+        			var num = 0;//匹配结果个数
+        			
+        			//获取正则内容,匹配内容,添加span标签
+        			if(input.value){
+        				try{
+        					var _re = getNewEscapeStr(input.value);
+		        			var re = new RegExp(_re,"gim");
+		        			
+		        			//获取组的正则(将所有不在组中的都添加组)
+		        			var _groupRe;
+		        			var groupIndexArr = []; //原来的组在 全是组正则中的索引
+		        			
+		        			var groupArr = _re.split(/[()]/);
+		        			_groupRe = '('+groupArr.join(')(')+')';
+		        			_groupRe = _groupRe.replace(/\(\)/g,'');
+		        			
+		        			var groupIndex = 0;
+		        			for(var i=0;i<groupArr.length;i++){
+		        				if(i%2==0 && groupArr[i].length>0){
+		        					groupIndex++;
+		        				}
+		        				if(i%2==1){
+		        					groupIndexArr.push(groupIndex);
+		        					groupIndex++;
+		        				}
+		        			}
+		        			//console.log(_groupRe+'|'+groupIndexArr);
+		        			
+		        			var matchIndexArr = [];
+        					var matchStrArr = [];
+        					var newStrArr = [];
+		        			var result = [];
+							while( (result=re.exec(str))!=null){
+								if(result[0]==''){
+									throw '死循环';
+								}
+	        					//匹配项需要替换为...
+	        					var subNewStr = result[0];
+	        					var className = "span"+(num%2+1);//没有组的项的样式
+	        					//替换组
+	        					if(result.length>1){
+	        						var subMatchIndexArr = [];
+		        					var subMatchStrArr = [];
+		        					var subNewStrArr = [];
+		        					
+		        					//重新用正则匹配一下,获取匹配组的字符串的开始索引
+	        						groupResult = new RegExp(_groupRe,"gim").exec(result[0]);
+	        						var groupNum = 0;
+	        						var groupStrLength = 0;//前面组的长度,即当前组的开始下标
+	        						for(var i=1;i<groupResult.length;i++){
+	        							if(contains(groupIndexArr,i-1)){//是原来的组
+	        								groupNum++;
+	        								subMatchIndexArr.push(groupStrLength);
+			        						subMatchStrArr.push(groupResult[i]);
+			        						subNewStrArr.push('<span class="span_'+groupNum+'">'+groupResult[i]+'</span>');
+			        					}
+	        							groupStrLength += groupResult[i].length;
+	        						}
+	        						
+		        					subNewStr = matchReplace(result[0],subMatchIndexArr,subMatchStrArr,subNewStrArr);
+		        					
+		        					//如果存在组的话,则className总是span1
+		        					className = 'span1';
+	        					}
+	        					//给不在组中的添加颜色
+	        					subNewStr = '<span class="'+className+'">'+subNewStr+'</span>';
+	        					
+	        					matchIndexArr.push(re.lastIndex-result[0].length);
+	        					matchStrArr.push(result[0]);
+	        					newStrArr.push(subNewStr);
+	        					num++;
+							}
+							newInnerHTML = matchReplace(str,matchIndexArr,matchStrArr,newStrArr);
+						}catch(e){
+							num = 0;
+							//console.log(e);
+						}
+        			}
+        			
+        			//获取span标签添加背景色
+        			pre.innerHTML = getOldEscapeStr(newInnerHTML);
+        			tishi.innerHTML = '匹配结果:'+num+'个';
+        			
+        			//如果结果小于10个,则自动定位
+        			if(num<10 && num>0){
+        				area.scrollTop = pre.getElementsByTagName('span')[0].offsetTop;
+        			}
+        		}
+        		
+        		//替换匹配项
+        		function matchReplace(str,matchIndexArr,matchStrArr,newStrArr){
+        			var newStr = '';
+        			var lastIndex = 0;
+        			for(var i=0;i<matchIndexArr.length;i++){
+        				//添加前面没匹配的
+        				newStr += str.substring(lastIndex,matchIndexArr[i]);
+        				lastIndex = matchIndexArr[i]+matchStrArr[i].length;
+        				//添加匹配的
+        				newStr += newStrArr[i];
+        			}
+        			//添加最后没匹配的
+        			newStr += str.substring(lastIndex);
+        			return newStr;
+        		}
+        		
+        		//获得自定义的转义过的字符串(为了将 原字符串的<和新添加的<区别开)
+        		function getNewEscapeStr(str){
+        			return str.replace(/&/g,"¦&¦").replace(/</g,"¦<¦").replace(/>/g,"¦>¦");
+        		}
+        		
+        		//将自定义的转义字符串 变为html的转义字符
+        		function getOldEscapeStr(str){
+        			return str.replace(/¦&¦/g,"&amp;").replace(/¦<¦/g,"&lt;").replace(/¦>¦/g,"&gt;");
+        		}
+        		
+        		//判断数组中是否存在某个元素
+        		function contains(arr,str){
+        			for(var i=0;i<arr.length;i++){
+        				if(arr[i]==str){
+        					return true;
+        				}
+        			}
+        			return false;
+        		}
+        		
+        		//当文本域滚动时,令pre同步滚动
+        		area.onscroll = function(){
+        			pre.scrollTop = area.scrollTop;
+        			if(pre.scrollTop != area.scrollTop){
+        				area.scrollTop = pre.scrollTop;
+        			}
+        		}
+        		
+        		//透明度
+        		opacityText.onkeyup = function(){
+        			//改变pre的透明度
+        			pre.style.opacity = opacityText.value/100;
+        		}
+        		opacityText.onkeyup();
+        		
+        		//字体大小
+        		fontsizeText.onkeyup = function(){
+        			pre.style.fontSize = fontsizeText.value+'px';
+        			area.style.fontSize = fontsizeText.value+'px';
+        		}
+        		fontsizeText.onkeyup();
+        		
+        	}
+        </script>
+    </head>
+    <body>
+    	<div class="content">
+    		正则:<input id="input1"><br>
+    		文本:<span id="tishi">匹配结果:0个</span>
+   			<div id="codeDiv">
+   				<textarea id="textarea1" spellcheck="false"></textarea>
+   				<pre id="pre1"></pre>
+   			</div>
+   			<div class="tishidiv">
+	   			颜色说明&nbsp;
+	   				没有组: <span class="span1" style="margin-right:5px;"></span> <span class="span2"></span>
+	   				第一组: <span class="span_1"></span>
+	   				第二组: <span class="span_2"></span>
+	   				第三组: <span class="span_3"></span>
+	   				第四组: <span class="span_4"></span>
+	   				第五组: <span class="span_5"></span>&nbsp;&nbsp;&nbsp;&nbsp;
+	   			透明度:<input id="opacityText" value="80"> %&nbsp;&nbsp;
+	   			字体大小:<input id="fontsizeText" value="18"> px
+   			</div>
+    	</div>
+    </body>
+</html>

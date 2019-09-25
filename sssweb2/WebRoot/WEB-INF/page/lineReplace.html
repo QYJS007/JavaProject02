@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>sssweb-单行模板替换</title>
+        <meta charset="utf-8">
+        <style>
+        	body { margin:0; font-family:Simsun;}
+        	a,a :visited { color:#06c; text-decoration:none;}
+        	h1 { margin:0 auto; text-align:center;}
+        	.content { width:850px; height:480px; border:1px solid; margin:0 auto; padding:20px 95px 0;}
+        	.span1 { display:block; margin:20px 0;}
+        	select{ width:303px; height:20px; }
+        	.text { width:314px; height:20px; }
+        	.textarea1,.textarea2 { width:368px; height:350px; display:inline-block;}
+        </style>
+        <script src="/sssweb2/public/ace-editor/ace.js"></script>
+		<script src="/sssweb2/public/ace-editor/mode-php.js"></script>
+		<script src="/sssweb2/public/ace-editor/theme-eclipse.js"></script>
+        <script src="/sssweb2/public/javascripts/utils.js"></script>
+        <script>
+        	window.onload=function(){
+        		//ace编辑器
+        		var editor1 = createEditor('textarea1');
+        		var editor2 = createEditor('textarea2');
+        		
+        		var textArr = document.getElementsByTagName('input');
+        		var text1 = textArr[0];
+        		var text2 = textArr[1];
+        		var oSelect = document.getElementsByTagName('select')[0];
+        		
+        		//获取所有模板
+        		var url = '/sssweb2/LineReplaceController/getAllTemplet.do';
+    			ajax(url,null,function(str){
+    				//将模板添加到选项中
+    				var arr = JSON.parse(str);
+    				for(var i=0;i<arr.length;i++){
+    					var oOption = document.createElement('option');
+    					oOption.innerHTML = arr[i].name;
+    					oOption.value = JSON.stringify(arr[i]);
+    					oSelect.appendChild(oOption);
+    				}
+    				//加载第一次选择的模板
+    				oSelect.onchange();
+    			});
+    			
+    			//当选择模板时,加载模板内容
+        		oSelect.onchange = function(){
+        			var templet = JSON.parse(oSelect.value);
+        			text1.value = templet.oldTemplet;
+    				text2.value = templet.newTemplet;
+    				editor1.setContentValue(templet.text);
+    				
+    				//修改父页面的input的value
+        			var parentODiv = window.parent.document.getElementsByTagName('div')[0];
+        			var aDiv = parentODiv.getElementsByTagName('div');
+        			for(var i=0;i<aDiv.length;i++){
+	        			if(aDiv[i].className.indexOf('active')!=-1){
+	        				parentODiv.getElementsByTagName('input')[i].value = this.options[this.selectedIndex].text;
+	        			}
+        			}
+        		}
+        		
+        		var oBtn = document.getElementById('btn');
+        		oBtn.onclick = function(){
+        			if(!text1.value){
+        				alert('原始模式不能为空');
+        				return false;
+        			}
+        			if(!text2.value){
+        				alert('新模式不能为空');
+        				return false;
+        			}
+        			if(!editor1.getContentValue()){
+        				alert('原始字符串不能为空');
+        				return false;
+        			}
+        			
+        			var url = '/sssweb2/LineReplaceController/replace.do';
+        			var param = 'pattern='+encodeURIComponent(text1.value,"utf-8");
+        			param += "&text="+encodeURIComponent(editor1.getContentValue(),"utf-8");
+        			param += "&newPattern="+encodeURIComponent(text2.value,"utf-8");
+        			ajax(url,param,function(str){
+        				editor2.setContentValue(str);
+        			});
+        		}
+        	}
+        </script>
+    </head>
+    <body>
+    	<div class="content">
+    		现有模板:<select></select>
+    		<span class="span1">
+	   			旧模板:<input class="text">
+	   			新模板:<input class="text">
+	   			<input id="btn" type="button" value="替换">
+   			</span>
+   			<span>文本:</span>　　　　　　　　　　　　　　　　　　　　　 <span>新文本:</span><br>
+   			<div id="textarea1" class="textarea1"></div>
+   			<div id="textarea2" class="textarea2"></div>
+    	</div>
+    </body>
+</html>

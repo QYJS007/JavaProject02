@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>sssweb-pageFrame</title>
+        <meta charset="utf-8">
+        <style>
+        	* {padding:0;margin:0;}
+			.b-tab {width:1042px;margin:2px auto;}
+			.j-box {width:1042px;display:none;height:535px;}
+			.j-btn {width:180px;float:left;height:25px;line-height:25px;font-size:9px;}
+			.b-tab input.active {background:#B4D0E6;}
+			.b-tab div.active {display:block;}
+			.b-tab>div iframe{width:100%;height:100%; border:0;}
+			
+			.head { position:relative; float:left;}
+			.close { position:absolute; width:8px; height:8px; background:antiquewhite; margin-left:-10px; font-size:8px; text-align:center; line-height:6px; cursor:pointer;}
+			#add,#remove {width:180px;float:left;width:25px;height:25px;line-height:25px;font-size:9px;}
+        </style>
+        <script src="/sssweb2/public/javascripts/utils.js"></script>
+        <script>
+	        window.onload=function(){
+	        	var pageUrl = location.search.substring(location.search.indexOf('pageUrl=')+8);
+	        	document.getElementById('iframe0').setAttribute('src',pageUrl);
+	        	
+	        	tab('j-tab');
+	        	
+	        	var oDiv = document.getElementsByTagName('div')[0];
+	        	//当点击+时,添加选项卡
+	        	function addclick(){
+	        		//按钮
+	        		var newInput = document.createElement('input');
+	        		newInput.className="j-btn";
+	        		newInput.setAttribute('type','button');
+	        		newInput.setAttribute('value','无标题');
+	        		//关闭按钮
+	        		var newSubSpan = document.createElement('span');
+	        		newSubSpan.className = 'close';
+	        		newSubSpan.innerHTML = 'x';
+	        		newSubSpan.onclick = close;
+	        		
+	        		var newSpan = document.createElement('span');
+	        		newSpan.className='head';
+	        		newSpan.appendChild(newInput);
+	        		newSpan.appendChild(newSubSpan);
+	        		
+	        		//页面
+	        		var newDiv = document.createElement('div');
+	        		newDiv.className='j-box';
+	        		newDiv.innerHTML = '<iframe src="'+pageUrl+'"></iframe>';
+	        		
+	        		//添加到页面中
+	        		oDiv.insertBefore(newSpan,document.getElementById('add'));
+	        		oDiv.appendChild(newDiv);
+	        		
+	        		tab('j-tab');
+	        		newInput.click();
+	        		
+	        		//添加快速定位 键盘按下事件
+	        		addQuickPositionKeyDown();
+	        	}
+	        	
+	        	//当点击x时,删除选项卡
+	        	function close(){
+	        		//确定当前编号
+	        		var parentSpan = this.parentNode;
+	        		
+	        		var num = 0;
+	        		var tempnum = 0;
+	        		for(var i=0;i<oDiv.children.length;i++){
+	        			if(oDiv.children[i].tagName.toLowerCase()=='span'){
+	        				if(parentSpan==oDiv.children[i]){
+	        					num = tempnum;
+	        					break;
+	        				}
+	        				tempnum++;
+	        			}
+	        		}
+	        		
+	        		//获得对应编号的div
+	        		var subDiv = null;
+	        		var tempnum = 0;
+	        		for(var i=0;i<oDiv.children.length;i++){
+	        			if(oDiv.children[i].tagName.toLowerCase()=='div'){
+	        				if(tempnum==num){
+	        					subDiv = oDiv.children[i];
+	        					break;
+	        				}
+	        				tempnum++;
+	        			}
+	        		}
+	        		
+	        		//如果是当前选中的,选择其他选项卡
+	        		if(parentSpan.children[0].className.indexOf('active')!=-1){
+	        			if(parentSpan.previousElementSibling){
+		        			//选中前一个按钮
+		        			parentSpan.previousElementSibling.children[0].click();
+		        		}else{
+		        			//当前是第一个选项卡
+		        			if(oDiv.children[1].children.length>1){
+		        				//存在第二个选项卡,选中第二个
+			        			oDiv.children[1].children[0].click();
+		        			}else{
+		        				//不存在第二个选项卡,创建一个
+		        				addclick();
+		        			}
+		        		}
+	        		}
+	        		
+	        		//删除
+	        		oDiv.removeChild(parentSpan);
+	        		oDiv.removeChild(subDiv);
+	        	}
+	        	
+	        	//当点击-时,删除全部选项卡
+	        	var lastDivInnerHTML = oDiv.innerHTML;
+	        	function removeclick(){
+	        		oDiv.innerHTML = lastDivInnerHTML;
+	        		tab('j-tab');
+	        		document.getElementById('add').onclick = addclick;
+		        	document.getElementById('remove').onclick = removeclick;
+		        	oDiv.children[0].children[1].onclick = close;
+	        	}
+	        	
+	        	document.getElementById('add').onclick = addclick;
+	        	document.getElementById('remove').onclick = removeclick;
+	        	oDiv.children[0].children[1].onclick = close;
+	        	
+	        	//根据参数 重新加载当前页面
+	        	window.myReLoad = function(projectArr){
+	        		var removeA = document.getElementById("remove");
+        			removeA.click();
+        			
+        			var addA = document.getElementById("add");
+        			for(var i=0;i<projectArr.length-1;i++){//默认已经有一个了
+        				addA.click();
+        			}
+        			
+        			//设置页面的选择项目(注意新页面加载时间)
+        			window.selectProjectNum=0;
+        			function selectProject(){
+        				console.log('尝试打开项目');
+        				window.selectProjectNum++;
+        				var parentODiv = document.getElementsByTagName('div')[0];
+            			var frameArr = parentODiv.getElementsByTagName('iframe');
+            			var isOkNum = 0;
+            			for(var i=0;i<frameArr.length;i++){
+            				var select = frameArr[i].contentWindow.document.getElementById('projectSelect');
+            				if(select.children.length>1 && select.value==''){
+            					select.value=projectArr[i];
+            					select.onchange();
+                				parentODiv.getElementsByTagName('input')[i].value = JSON.parse(projectArr[i]).name;
+            					isOkNum++;
+            				}
+            			}
+            			if(frameArr.length!=isOkNum){
+            				if(window.selectProjectNum<50){
+            					setTimeout(selectProject,500);
+            				}else{
+            					alert('打开项目失败');
+            					window.selectProjectNum = 0;
+            				}
+            			}
+        			}
+        			setTimeout(selectProject,500);
+	        	}
+	        	
+	        	//添加快速定位 键盘按下事件
+	        	function quickPositionInputFocus(ev){
+					window.parent.document.onkeydown(ev);
+				}
+	        	function addQuickPositionKeyDown(){
+	        		setTimeout(function(){
+						var parentODiv = document.getElementsByTagName('div')[0];
+		    			var frameArr = parentODiv.getElementsByTagName('iframe');
+		    			for(var i=0;i<frameArr.length;i++){
+		    				frameArr[i].contentWindow.document.onkeydown = quickPositionInputFocus;
+		    			}
+					},500);
+	        	}
+	        	document.onkeydown = quickPositionInputFocus;
+				addQuickPositionKeyDown();
+				
+	        }
+	        
+        </script>
+    </head>
+    <body>
+    	<div class="b-tab j-tab">
+			<span class="head"><input class="j-btn active" type="button" value="无标题"/><span class="close">x</span></span>
+			<input id="add" type="button" value=" + "/>
+			<input id="remove" type="button" value=" - "/>
+			<div class="j-box active"><iframe id="iframe0"></iframe></div>
+		</div>
+    </body>
+</html>

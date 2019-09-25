@@ -1,0 +1,112 @@
+body {
+	margin:0;
+	padding:0;
+	overflow-x:auto;
+}
+.row{
+	margin:0 30px 0 0;
+}
+.col-xs-1,.col-xs-2,.col-xs-3,.col-xs-4,.col-xs-5,.col-xs-6,.col-xs-7,.col-xs-8,.col-xs-9,.col-xs-10,.col-xs-11,.col-xs-12{
+	padding-left:6px;
+	padding-right:6px;	
+	margin-bottom:6px;
+}
+.form-control{
+	padding:0;
+}
+.checkbox{
+	margin-top:0;
+}
+.combo-panel{
+	padding:0;
+}
+#query .panel-title a{
+	text-decoration:none;
+}
+#query .panel-body{
+	overflow: visible;
+}
+#searchform label{
+	margin-top:3px;
+	text-align:center;
+}
+#operate{
+	margin-bottom:20px;
+}
+#operate .title{
+	margin-right:20px;
+	font-weight:bold;
+}
+#operate .btn{
+	margin-right:6px;
+}
+#dataset{
+	height:330px;
+	margin-bottom:10px;
+}
+.modal-dialog{
+	width:800px;
+}
+.modal-content{
+	width:800px;
+}
+.modal-body{
+	padding:0 20px;
+}
+.modal-footer{
+	margin-top:0;
+	text-align:center;
+}
+.modal-footer .btn{
+	margin: 0 30px;
+}
+#prompt{
+	margin-bottom:6px;
+	height:20px;
+	color:#f00;
+	font-size:16px;
+	font-weight:bold;
+	text-align:center;
+}
+#promptpwd{
+	margin-bottom:6px;
+	height:20px;
+	color:#f00;
+	font-size:16px;
+	font-weight:bold;
+	text-align:center;
+}
+#editform label{
+	text-align:right;
+}
+.mark{
+	font-size:20px;
+	font-weight:bold;
+	vertical-align:middle;
+	color:red;
+	margin-right:5px;
+}
+
+.title{
+	line-height:2;
+}
+
+/*控制日期插件天数的字体大小*/
+.day{
+	font-size:12px;
+}
+
+/*控制分页插件当前页码的字体大小*/
+.pagination-num{
+	font-size:9px;
+}
+
+/*覆盖easyui样式*/
+.datagrid-mask-msg{
+	height:auto;
+}
+
+/*覆盖bootstrap样式*/
+input[type="checkbox"]{
+	margin: 0;
+}

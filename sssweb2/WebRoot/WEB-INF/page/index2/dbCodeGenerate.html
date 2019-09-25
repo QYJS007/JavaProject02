@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>sssweb-db模板代码生成</title>
+        <meta charset="utf-8">
+        <style>
+        	body { margin:0;}
+        	.content { width:950px; height:500px; border:1px solid; margin:0 auto; padding:15px 45px;}
+        	.span1 { display:inline-block; margin-bottom:15px;}
+        	.select1 { width:220px; height:20px; }
+        	.select2 { width:190px; height:20px; }
+        	.select3 { width:160px; height:57px; position:absolute; z-index:999;}
+        	#btn { margin-left:240px;}
+        	.text { width:280px; height:20px; }
+        	.div1 { width:460px; height:445px; float:left;}
+        	.textarea1{ width:440px; height:260px;}
+        	.textarea2 { width:440px; height:130px; white-space:pre; overflow-wrap:inherit;}
+        	#codeDiv{ float:left; width:480px; height:420px; white-space:nowrap;　margin-bottom:20px;}
+        	#codeDiv pre { margin-top:0;}
+        	
+        	a,a :visited { color:#06c; text-decoration:none; font-size:9px; }
+        </style>
+		<script src="/sssweb2/public/ace-editor/ace.js"></script>
+		<script src="/sssweb2/public/ace-editor/mode-php.js"></script>
+		<script src="/sssweb2/public/ace-editor/theme-eclipse.js"></script>
+        <script src="/sssweb2/public/javascripts/ZeroClipboard.js"></script>
+        <script src="/sssweb2/public/javascripts/utils.js"></script>
+        <script>
+        	window.onload=function(){
+        		//ace编辑器
+        		var editor1 = createEditor('textarea1',true);
+        		var editor2 = createEditor('textarea2',true);
+        		var editor3 = createEditor('codeDiv',true);
+        		
+        		var aSelect = document.getElementsByTagName('select');
+        		var dbInfoSelect = aSelect[0];
+        		var tableNameSelect = aSelect[1];
+        		var columnNameSelect = aSelect[2];
+        		var typeSelect = aSelect[3];
+        		var templetSelect = aSelect[4];
+        		
+        		var codeDiv = document.getElementById('codeDiv');
+        		//获取所有数据库信息
+        		var url = '/sssweb2/DbCodeGenerateController/queryAllDbInfo.do';
+    			ajax(url,null,function(str){
+    				//将模板添加到选项中
+    				var arr = JSON.parse(str);
+    				for(var i=0;i<arr.length;i++){
+    					var name = arr[i];
+    					var oOption = document.createElement('option');
+    					oOption.innerHTML = arr[i].name;
+    					oOption.value = arr[i].name;
+    					dbInfoSelect.appendChild(oOption);
+    				}
+    				//加载第一次选择的模板和参数示例
+    				dbInfoSelect.onchange();
+    			});
+        		
+    			//当选择数据库时,获取表名称
+        		dbInfoSelect.onchange = function(){
+        			tableNameSelect.innerHTML = '<option value=""></option>';
+        			columnNameSelect.innerHTML = '<option value="">无需选择</option>';
+        			
+        			if(!dbInfoSelect.value){
+        				return;
+        			}
+        			var url = '/sssweb2/DbMngrController/getAllTableName.do';
+        			var params = 'dbInfoName='+dbInfoSelect.value;
+        			ajax(url,params,function(str){
+        				var arr = JSON.parse(str);
+        				for(var i=0;i<arr.length;i++){
+        					var oOption = document.createElement('option');
+        					oOption.innerHTML = arr[i];
+        					oOption.value = arr[i];
+        					tableNameSelect.appendChild(oOption);
+        				}
+        				tableNameSelect.onchange();
+        			});
+        		}
+    			
+        		//当选择表时,获取列名称
+        		tableNameSelect.onchange = function(){
+        			columnNameSelect.innerHTML = '<option value="">无需选择</option>';
+        			
+        			if(!tableNameSelect.value){
+        				return;
+        			}
+        			
+        			var url = '/sssweb2/DbCodeGenerateController/queryAllColumnName.do';
+        			var params = 'dbInfoName='+dbInfoSelect.value;
+        			params += "&tableName="+encodeURIComponent(tableNameSelect.value,"utf-8");
+        			ajax(url,params,function(str){
+        				var arr = JSON.parse(str);
+        				for(var i=0;i<arr.length;i++){
+        					var oOption = document.createElement('option');
+        					oOption.innerHTML = arr[i];
+        					oOption.value = arr[i];
+        					columnNameSelect.appendChild(oOption);
+        				}
+        			});
+        		}
+    			
+        		//获取所有功能
+        		var url = '/sssweb2/OtherBackController/countTable.do';
+        		var params = 'modelName=DbCodeGenerateTemplet';
+        		params += '&columnName=type';
+    			ajax(url,params,function(str){
+    				//将模板添加到选项中
+    				var arr = JSON.parse(str);
+    				for(var i=0;i<arr.length;i++){
+    					var oOption = document.createElement('option');
+    					oOption.innerHTML = arr[i];
+    					oOption.value = arr[i];
+    					typeSelect.appendChild(oOption);
+    				}
+    				//加载第一次选择的模板和参数示例
+    				typeSelect.onchange();
+    			});
+    			
+    			//当选择功能时,获取模板
+        		typeSelect.onchange = function(){
+        			var url = '/sssweb2/DbCodeGenerateController/queryTempletByType.do';
+        			var params = 'type='+typeSelect.value;
+        			ajax(url,params,function(str){
+        				templetSelect.innerHTML = '';
+        				var arr = JSON.parse(str);
+        				for(var i=0;i<arr.length;i++){
+        					var oOption = document.createElement('option');
+        					oOption.innerHTML = arr[i].name;
+        					oOption.value = JSON.stringify(arr[i]);
+        					templetSelect.appendChild(oOption);
+        				}
+        				templetSelect.onchange();
+        			});
+        		}
+    			
+        		//当选择模板时,加载模板内容
+        		templetSelect.onchange = function(){
+        			var code = JSON.parse(templetSelect.value);
+        			editor1.setContentValue(code.code);
+        			editor2.setContentValue(code.param);
+        		}
+        		
+        		var oBtn = document.getElementById('btn');
+        		oBtn.onclick = function(){
+        			if(!editor1.getContentValue()){
+        				alert('模板不能为空');
+        				return false;
+        			}
+        			if(!tableNameSelect.value){
+        				alert('数据库信息和表名不能为空');
+        				return false;
+        			}
+        			
+        			//codeDiv.innerHTML = '';
+        			editor3.setContentValue('');
+        			
+        			//获取columnNameArr
+        			var columnNameArr=[];
+        			for(var i=0;i<columnNameSelect.options.length;i++){
+	        			if(columnNameSelect.options[i].selected){
+	        				columnNameArr.push(columnNameSelect.options[i].value);
+	        			}
+        			}
+        			var columnNameStr = '';
+        			for(var i=0;i<columnNameArr.length;i++){
+        				columnNameStr+=columnNameArr[i];
+        				if(i<columnNameArr.length-1){
+        					columnNameStr+=',';
+        				}
+        			}
+        			
+        			var url = '/sssweb2/DbCodeGenerateController/generation.do';
+        			var params = "templet="+encodeURIComponent(editor1.getContentValue(),"utf-8");
+        			params += "&paramStr="+encodeURIComponent(editor2.getContentValue(),"utf-8");
+        			params += "&dbInfoName="+encodeURIComponent(dbInfoSelect.value,"utf-8");
+        			params += "&tableName="+encodeURIComponent(tableNameSelect.value,"utf-8");
+        			params += "&columnNameArr="+encodeURIComponent(columnNameStr,"utf-8");
+        			ajax(url,params,function(str){
+        				//将< 和 > 替换
+        				editor3.setContentValue(str);
+        			});
+        		}
+        		
+        		//复制结果
+				copy('copy',function(){
+					return editor3.getContentValue();
+				});
+        		
+        		//给a添加事件
+        		var b = true;
+				document.getElementById("changeSize").onclick = function(){
+					if(b){
+						columnNameSelect.style.width = '180px';
+						columnNameSelect.style.height = '457px';
+					}else{
+						columnNameSelect.style.width = '160px';
+						columnNameSelect.style.height = '57px';
+					}
+        			b = !b;
+        		}
+        	}
+        </script>
+    </head>
+    <body>
+    	<div class="content">
+    		<span class="span1">
+    			数据库:<select class="select1"><option value=""></option></select>　　
+    			表名:<select class="select2"></select>　
+    			列名:<select class="select3" multiple="multiple"></select>
+    			<a id="changeSize" href="javascript:;" style="display:inline-block; margin-left:180px;">改变大小</a>
+    			<a href="javascript:alert('会自动添加三个参数:tableName,tableInfo,columnNameList');" style="display:inline-block; margin-left:10px;">说明</a>
+    		</span>
+    		<br>
+    		<span class="span1">
+    			功能:　<select class="select1"></select>　　
+    			模板:<select class="select2"></select>
+    			<input id="btn" type="button" value="生成">
+   				<input id="copy" type="button" value="复制结果">
+    		</span>
+   			<br>
+   			<div class="div1">
+	   			模板:<br>
+	   			<div id="textarea1" class="textarea1"></div>
+	   			参数:<br>
+	   			<div id="textarea2" class="textarea2"></div>
+   			</div>
+   			代码:<br>
+   			<div id="codeDiv"></div><br>
+    	</div>
+    </body>
+</html>

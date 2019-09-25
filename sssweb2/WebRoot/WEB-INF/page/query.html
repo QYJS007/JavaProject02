@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>sssweb-文件查询</title>
+        <meta charset="utf-8">
+        <style>
+        	body{ margin:0; font-family:Simsun;}
+        	a,a :visited { color:#06c; text-decoration:none;}
+        	h1 { margin:0 auto; text-align:center;}
+        	.content { width:960px; border:1px solid; margin:0 auto; padding:0 40px;}
+        	.span1 { display:inline-block; margin-top:10px;}
+        	label { margin-left:20px;}
+        	select{ width:322px; height:20px; margin-right:28px;}
+        	#pathPattern,#noPathPattern,#fileNamePattern,#noFileNamePattern { width:318px;}
+        	#matchCase { margin-left:20px;}
+        	#path,#queryStr { width:458px;}
+        	#searchOption { font-size:10px; margin-left:20px;}
+        	#btn { margin-left:30px;}
+        	#labelSpan,#labelSpan2 { float:right; font-size:8px; color:#666;}
+        	#ul1 { width:950px; height:155px; margin:10px 0 5px 0; border:1px solid #ccc; padding:5px; overflow:scroll; white-space:nowrap; list-style:none; font-size:12px;}
+        	#ul1 li { width:1440px;}
+        	#textDiv { width:950px; height:220px; border:1px solid #ccc; padding:5px; margin:5px 0; overflow:scroll; white-space:nowrap; list-style:none;}
+        	.span_red { color:red;}
+        	.fileName,.lineNum,.lineContent,.filePath { display:inline-block; margin-right:30px; overflow:hidden;}
+        	.fileName { width:160px; color:#CD00CD;}
+        	.lineNum { width:60px;}
+        	.lineContent { width:800px; color:#000;}
+        	.filePath { width:300px; color:#CD00CD;}
+        	
+        	.liClickColor { background:#8FBC8F;}
+			.liOverColor { background:#ccc;}
+        </style>
+        <script src="/sssweb2/public/javascripts/ZeroClipboard.js"></script>
+        <script src="/sssweb2/public/javascripts/utils.js"></script>
+        <script>
+        	window.onload=function(){
+        		var oSelect = document.getElementsByTagName('select')[0];
+        		var oPath = document.getElementById('path');
+        		var oPathPattern = document.getElementById('pathPattern');
+        		var oNoPathPattern = document.getElementById('noPathPattern');
+        		var oFileNamePattern = document.getElementById('fileNamePattern');
+        		var oNoFileNamePattern = document.getElementById('noFileNamePattern');
+        		var oMatchCase = document.getElementById('matchCase');
+        		var oQueryStr = document.getElementById('queryStr');
+        		var oBtn = document.getElementById('btn');
+        		var oBtn2 = document.getElementById('btn2');
+        		var oUl1 = document.getElementById('ul1');
+        		var oTextDiv = document.getElementById('textDiv');
+        		var oLabelSpan = document.getElementById('labelSpan');
+        		var oLabelSpan2 = document.getElementById('labelSpan2');
+        		var oEncodingSpan = document.getElementById('encodingSpan');
+        		var oShowLineNum = document.getElementById('showLineNum');
+        		var oSearchOption = document.getElementById('searchOption');
+        		var clearOption = document.getElementById('clearOption');
+        		
+        		//获取所有模板
+        		var url = '/sssweb2/QueryController/getAllTemplet.do';
+    			ajax(url,null,function(str){
+    				if(str){
+	    				//将模板添加到选项中
+	    				var queryArr = eval(str);
+	    				for(var i=0;i<queryArr.length;i++){
+	    					var oOption = document.createElement('option');
+	    					oOption.innerHTML = queryArr[i].name;
+	    					oOption.value = JSON.stringify(queryArr[i]);
+	    					oSelect.appendChild(oOption);
+	    				}
+	    				//加载第一次选择的模板和参数示例
+	    				oSelect.onchange();
+    				}
+    			});
+    			
+        		oSelect.onchange = function (){
+        			var query = JSON.parse(oSelect.value);
+        			oPath.value = query.path;
+        			oPathPattern.value = query.pathPattern;
+        			oNoPathPattern.value = query.noPathPattern;
+        			oFileNamePattern.value = query.fileNamePattern;
+        			oNoFileNamePattern.value = query.noFileNamePattern;
+        			var aInput = oEncodingSpan.getElementsByTagName('input');
+        			if(query.encoding=='utf-8'){
+        				aInput[0].checked = true;
+        			}else if(query.encoding=='gbk'){
+        				aInput[1].checked = true;
+        			}else{
+        				aInput[2].checked = true;
+        			}
+        			//修改父页面的input的value
+        			var parentODiv = window.parent.document.getElementsByTagName('div')[0];
+        			var aDiv = parentODiv.getElementsByTagName('div');
+        			for(var i=0;i<aDiv.length;i++){
+	        			if(aDiv[i].className.indexOf('active')!=-1){
+	        				parentODiv.getElementsByTagName('input')[i].value = oSelect.options[oSelect.selectedIndex].text;
+	        			}
+        			}
+        		}
+        		
+        		//清空模板
+        		clearOption.onclick = function(){
+        			oPathPattern.value = '';
+        			oNoPathPattern.value = '';
+        			oFileNamePattern.value = '';
+        			oNoFileNamePattern.value = '';
+        		}
+        		
+        		//查询
+        		oBtn.onclick = function (){
+        			if(!oQueryStr.value){
+        				alert('请输入要查询的字符串!');
+        				return;
+        			}
+        			oLabelSpan.innerHTML = '正在搜索...';
+        			
+        			var url = '/sssweb2/QueryController/query.do';
+        			var param = 'path='+encodeURIComponent(oPath.value,"utf-8");
+        			param += "&pathPattern="+encodeURIComponent(oPathPattern.value,"utf-8");
+        			param += "&noPathPattern="+encodeURIComponent(oNoPathPattern.value,"utf-8");
+        			param += "&fileNamePattern="+encodeURIComponent(oFileNamePattern.value,"utf-8");
+        			param += "&noFileNamePattern="+encodeURIComponent(oNoFileNamePattern.value,"utf-8");
+        			param += "&matchCase="+encodeURIComponent(oMatchCase.checked,"utf-8");
+        			param += "&queryStr="+encodeURIComponent(oQueryStr.value,"utf-8");
+        			param += "&encoding="+encodeURIComponent(getEncoding(),"utf-8");
+        			param += "&showLineNum="+encodeURIComponent(oShowLineNum.value,"utf-8");
+        			ajax(url,param,function(json){
+        				oLabelSpan.innerHTML = '正在渲染...';
+        				setTimeout(function(){
+        					try{
+	        					var time1 = new Date().getTime();
+	        					eval('json = '+json);
+	            				oUl1.innerHTML = json.title;
+	            				oTextDiv.innerHTML = '<pre>'+json.content+'</pre>';
+	            				oLabelSpan2.innerHTML = '　';
+	            				oUl1.scrollTop = 0;
+	            				oTextDiv.scrollTop = 0;
+	            				var time2 = new Date().getTime();
+	            				oLabelSpan.innerHTML = "共搜索了"+json.fileCount+"个文件,找到了"+json.lineCount+"个匹配行,花费"+json.time+'+'+(time2-time1)+'毫秒';
+        					}catch(e){
+        						alert('渲染失败');
+        					}
+        				},10);
+        			});
+        		}
+        		
+        		//替换
+        		oBtn2.onclick = function(){
+        			if(window.location.toString().indexOf('localhost')==-1){
+        				alert('只能在本机进行此操作!');
+        				return;
+        			}
+        			
+        			if(oQueryStr.value.indexOf('@@')!=-1 || !oMatchCase.checked){
+        				alert('查询字符串不能含有@@,且必须勾选区分大小写!');
+        				return;
+        			}
+        			
+        			alert('此操作不可撤销,请先将原文件备份一份!');
+        			var replaceStr = prompt('请输入新字符串');
+        			
+        			if(replaceStr){
+        				//发送请求
+	        			var url = '/sssweb2/QueryController/replace.do';
+	        			var param = 'path='+encodeURIComponent(oPath.value,"utf-8");
+	        			param += "&pathPattern="+encodeURIComponent(oPathPattern.value,"utf-8");
+	        			param += "&noPathPattern="+encodeURIComponent(oNoPathPattern.value,"utf-8");
+	        			param += "&fileNamePattern="+encodeURIComponent(oFileNamePattern.value,"utf-8");
+	        			param += "&noFileNamePattern="+encodeURIComponent(oNoFileNamePattern.value,"utf-8");
+	        			param += "&matchCase="+encodeURIComponent(oMatchCase.checked,"utf-8");
+	        			param += "&queryStr="+encodeURIComponent(oQueryStr.value,"utf-8");
+	        			param += "&replaceStr="+encodeURIComponent(replaceStr,"utf-8");
+	        			param += "&encoding="+encodeURIComponent(getEncoding(),"utf-8");
+	        			ajax(url,param,function(json){
+	        				alert(json);
+	        			});
+        			}
+        		}
+        		
+        		//利用事件委托为li添加点击事件和鼠标移入移出事件
+				oUl1.onclick=function(ev){
+					var e = window.event||ev;
+					var obj = e.srcElement||e.target;		//获取事件源
+					if(obj.nodeName.toUpperCase()!='UL'){	//防止移入ul触发事件
+						//将所有li背景还原
+						var aLi = this.getElementsByTagName('li');
+						for(var i=0;i<aLi.length;i++){
+							aLi[i].className = '';
+							aLi[i].setAttribute('lastClass','');//记录颜色
+						}
+						//将指定li背景改变
+						while(obj.nodeName.toUpperCase()!='LI'){
+							obj = obj.parentNode;
+						}
+						var oLi = obj;
+						oLi.className='liClickColor';
+						oLi.setAttribute('lastClass','liClickColor');//记录颜色
+						
+						//显示选中文件的路径
+						var path = oLi.children[0].children[3].innerHTML;
+						if(path.substring(0,5)=='/app/' && path.substring(path.length-5)=='.java'){
+							path += ' ( '+path.substring(5,path.length-5).replace(/[/]/g,'.')+' )';
+						}
+						oLabelSpan2.innerHTML = path;
+					}
+				};
+				oUl1.onmouseover=function(ev){
+					var e = window.event||ev;
+					var obj = e.srcElement||e.target;		//获取事件源
+					if(obj.nodeName.toUpperCase()!='UL'){	//防止移入ul触发事件
+						//将指定li背景改变
+						while(obj.nodeName.toUpperCase()!='LI'){
+							obj = obj.parentNode;
+						}
+						var oLi = obj;
+						//改变颜色
+						oLi.className='liOverColor';
+					}
+				};
+				oUl1.onmouseout=function(ev){
+					var e = window.event||ev;
+					var obj = e.srcElement||e.target;		//获取事件源
+					if(obj.nodeName.toUpperCase()!='UL'){	//防止移入ul触发事件
+						//将指定li背景改变
+						while(obj.nodeName.toUpperCase()!='LI'){
+							obj = obj.parentNode;
+						}
+						var oLi = obj;
+						//还原颜色
+						var lastColor = oLi.getAttribute('lastClass');
+						oLi.className=lastColor?lastColor:'';
+					}
+				};
+				
+				//为文本框添加键盘按下事件,按回车就查询
+				oQueryStr.onkeydown=function(ev){
+					var e = window.event||ev;
+					if(e.keyCode=='13'){
+						oBtn.click();
+					}
+				};
+				
+				//点击搜索选项按钮
+				oSearchOption.onclick = function(){
+					var oSearchOptionDiv = document.getElementById('searchOptionDiv');
+					if(oSearchOptionDiv.style.display=='none'){
+						this.innerHTML = '搜索选项 ∧';
+						oSearchOptionDiv.style.display='block';
+					}else{
+						this.innerHTML = '搜索选项 ∨';
+						oSearchOptionDiv.style.display='none';
+					}
+				}
+				
+				//排序功能
+				var oSort = document.getElementById('sort');
+				oSort.onclick=function(){
+					var aLi = oUl1.getElementsByTagName('li');
+					
+					var arr = [];
+					for(var i=0;i<aLi.length;i++){
+						arr.push(aLi[i]);
+					}
+					
+					var re = /<[^>]*?>/g;
+					arr.sort(function(obj1,obj2){
+						var str1 = obj1.children[0].children[2].innerHTML.replace(re,'');
+						var str2 = obj2.children[0].children[2].innerHTML.replace(re,'');
+						var num = str1.localeCompare(str2);
+						return num;
+					});
+					
+					oUl1.innerHTML = '';
+					for(var i=0;i<arr.length;i++){
+						oUl1.appendChild(arr[i]);
+					}
+				}
+				
+				//获得选择的编码
+				function getEncoding(){
+					var aInput = oEncodingSpan.getElementsByTagName('input');
+					if(aInput[0].checked){
+						return 'utf-8';
+					}else if(aInput[1].checked){
+						return 'gbk';
+					}else if(aInput[2].checked){
+						return 'auto';
+					}
+				}
+        	}
+        </script>
+    </head>
+    <body>
+    	<div class="content">
+    		<span class="span1">
+	    		现有模板: <select id="templetSelect"></select><input id="clearOption" type="button" value="清空搜索选项">
+	   		</span>
+	   		<br>
+	   		<span class="span1">
+	   			搜索路径: <input id="path" name="path">
+   				<a id="searchOption" href="javascropt:;">搜索选项 ∨</a>
+   			</span>
+   			<div id="searchOptionDiv" style="display:none">
+   				<span class="span1">
+		   			路径模式: <input id="pathPattern" name="pathPattern">
+		   			<label>排除的路径模式: <input id="noPathPattern" name="noPathPattern"></label>
+	   			</span>
+	   			<br>
+	   			<span class="span1">
+		   			名称模式: <input id="fileNamePattern" name="fileNamePattern">
+		   			<label>排除的名称模式: <input id="noFileNamePattern" name="noFileNamePattern"></label>
+	   			</span>
+	   			<br>
+	   			<span class="span1">
+		   			文件编码:
+		   			<span id="encodingSpan">
+			   			<input type="radio" name="encoding" value="utf-8" checked="checked">utf-8
+		   				<input type="radio" name="encoding" value="gbk">gbk
+		   				<input type="radio" name="encoding" value="auto">自动检测
+	   				</span>
+	   				<label style="margin-left:135px">显示相关的行数: <input id="showLineNum" value="80" style="width:30px;"></label>
+	   			</span>
+   			</div>
+   			<span class="span1">
+	   			搜索文本: <input id="queryStr" name="queryStr">
+	   			<input type="checkbox" id="matchCase" name="matchCase">区分大小写
+   			</span>
+   			<input id="btn" type="button" value="查询">
+   			<input id="btn2" type="button" value="替换">
+   			<a id="sort" href="javascript:;" style="font-size:10px; margin-left:10px;">排序</a>
+   			<div id="div2">
+	   			<span id="labelSpan">　</span>
+	   			<ul id="ul1"></ul>
+	   			<span id="labelSpan2">　</span>
+	   			<div id="textDiv"></div>
+   			</div>
+    	</div>
+    </body>
+</html>

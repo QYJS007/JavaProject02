@@ -1,0 +1,108 @@
+ognl语法
+	对象
+		可直接使用对象的方法
+	集合
+		创建集合
+			{'aa','bb','cc','dd'}
+	map
+		创建map
+			#{'key1':'value1','key2':'value2'}
+		获取所有key
+			map.keys
+		获取所有value
+			map.values
+		获取某个元素
+			map.key
+	静态属性和静态方法访问
+		@类全限定名称@属性名
+		@类全限定名称@方法名(参数)
+
+
+
+jetbrick-template语法
+------------------------------------------------------------------------
+	详细语法
+		参见:http://subchen.github.io/jetbrick-template/2x/syntax-value.html
+	文本
+		转义字符
+			\
+		原样输出文本块
+			#[[ 
+				文本快
+			]]#
+	注释
+		单行注释
+			#//
+			##
+		多行注释
+			#-- --#
+	值
+		${表达式}		输出表达式的值
+		$!{表达式}		输出表达式的值,并对html进行转义
+		注意: 如果表达式返回值为null则不输出
+	指令
+		模板选项
+			#options (key=value ,...)
+			
+		赋值
+			#set(type name=value ,...)
+			#set(int num=3)
+		条件语句
+			#if(expression) ... #end
+			#if(expression) ... #else ... #end
+			#if(expression) ... #elseif(expression) ... #else ... #end
+		循环
+			格式
+				#for([type] id: expression) ... #end
+				#for([type] id: expression) ... #else ... #end  	//指令 #else 可用于循环为空时的内容输出。
+			循环范围
+				#for (int i : range(1, 100))
+					...
+				#end
+			循环map
+				#for (Map.Entry entry : map)
+					${entry.key} : ${entry.value}
+				#end
+			内部对象
+				for.index 可用于内部循环计数，从 1 开始计数。
+				for.size 获取循环总数。
+				for.first 是否第一个元素。
+				for.last 是否最后一个元素。
+				for.odd 是否第奇数个元素。
+				for.even 是否第偶数个元素。
+				for.outer 获取外部 #for 指令的 for 对象
+			流程控制语句
+				#break
+				#break(expression)
+				#continue
+				#continue(expression)
+	表达式
+		大部分同java规则,可直接调用对象的属性和方法
+		静态方法调用: 类的全限定名称::方法名称(参数)
+		声明list		[1,2,3]
+		声明map			{name:"jetbrick", version: 2.0}
+		NULL 默认值		a ?! b
+	宏
+		声明指定的块,可重复使用
+		定义宏
+			#macro 宏名称([参数类型] 参数名称 ,...)
+				...
+			#end
+		使用宏
+			#call 宏名称(参数)
+			${macroGet(宏名称, 参数)}
+
+
+
+
+------------------------------------------------------------------------
+两者最常用的区别
+	静态方法调用
+		ognl
+			@类全限定名称@方法名(参数)
+			对象.方法名(参数)
+		jetbrick
+			类的全限定名称::方法名称(参数)
+自定义jetbrick语法
+	自动将#if和 #for之前的空格删除
+	碰到#b,会删除#b本身和前一个距离最近的空白字符,空格除外

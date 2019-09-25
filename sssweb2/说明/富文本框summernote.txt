@@ -1,0 +1,13 @@
+
+示例网址
+http://summernote.org/
+
+加入js(依赖jquery 和 bootstrap)
+<link href="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.2/summernote.css" rel="stylesheet">
+<script src="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.2/summernote.js"></script>
+
+添加html
+<div id="summernote">Hello Summernote</div>
+
+添加js
+$('#summernote').summernote();

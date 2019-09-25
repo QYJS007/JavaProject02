@@ -1,0 +1,18 @@
+##路由
+#=======================${serviceParam.modelChineseName}管理====================================
+GET		/${modelVarName}				${actionName}.index
+GET		/${modelVarName}/search			${actionName}.search
+POST	/${modelVarName}/save			${actionName}.save
+POST	/${modelVarName}/delete			${actionName}.delete
+
+
+##自动补全
+#for(String columnName : serviceParam.autoCompleteList)
+	#set(String[] arr=columnName.split('\\|'))
+	else if("${modelVarName}_${arr[2]}".equals(type)){
+		result.fieldslist = Arrays.asList("${arr[5]}", "${arr[6]}");
+		result.nameslist = Arrays.asList("${arr[3]}", "${arr[4]}");
+		result.fieldswidthlist = Arrays.asList(80,100);
+		sql = "select t.${arr[3]},t.${arr[4]} from ${arr[2]} t where (t.${arr[4]} like '%"+text+"%' or t.${arr[3]} like '%"+text+"%')";
+	}
+#end

@@ -1,0 +1,52 @@
+package ${modelPackageName};
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+#if(serviceParam.autoCompleteList.size()>0)
+	import play.db.jpa.JPA;#b
+#end
+
+#if(commonUtils.containsDateColumn(tableInfo))
+	import java.util.Date;#b
+#end
+
+@Entity
+@Table(name="${tableName}")
+public class ${modelName} extends SimpleModel{
+
+	#if(primaryKeyName=='')
+		!!!!!主键在列中不存在,${tableName},${primaryKeyName}#b
+	#else
+		@Id#b
+		public ${primaryKeyType} ${primaryKeyName};#b
+	#end
+	#for(Map.Entry entry : tableInfo.columnInfoMap)
+		#if(primaryKeyName!=entry.key)
+			public ${entry.value.javaType} ${entry.key}; //${entry.value.comment?entry.value.comment:serviceParam.fieldChineseNameMap.get(entry.key)}#b#b
+		#end
+	#end
+	
+	public Long getId() {
+		return ${primaryKeyName};
+	}
+	
+	//自动补全(没有描述列)
+	##判断是否是没有描述列的自动补全
+	#for(String columnName2 : serviceParam.autoCompleteList)
+		#set(String[] arr=columnName2.split('\\|'))#b
+		#if(arr[1].equals("null"))
+	public String get${commonUtils.firstCharUpperCase(arr[4])}(){
+		try {
+			if(${arr[0]}!=null){
+				return JPA.em().createNativeQuery("select ${arr[4]} from ${arr[2]} where ${arr[3]}="+${arr[0]}).getResultList().get(0).toString();
+			}
+		} catch (Exception e) {
+		}
+		return null;
+	}
+		#end
+	#end
+	
+}

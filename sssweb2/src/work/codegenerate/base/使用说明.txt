@@ -1,0 +1,67 @@
+使用流程
+	添加新包
+		添加类: 在main方法中调用CodeGenerate.run(当前类名.class);
+		添加模板: _all_pub_param.templet, 并指定参数
+		添加模板: _every_table_init_param.templet, 并指定参数
+		添加自定义模板
+		运行main方法
+
+
+执行流程
+	读取基本参数
+		添加main方法所在类的对象(可在此类中提供需要的方法) (填充key:类名首字母小写)
+		读取模板,获得参数:_all_pub_param.templet
+			输出路径(out_path)
+			跟表相关的模板(table_templet_list)
+			跟表无关的模板(other_templet_list)
+	获取数据库相关表信息(tableInfoMap)
+	生成跟表相关的模板
+		循环每个表
+			准备参数
+				添加基本参数
+				填加表名(填充key:tableName)
+				读取模板:_every_table_init_param.templet
+			循环要填充的模板(table_templet_list)
+				填充模板
+	生成跟表无关的模板
+		循环每个要填充的模板
+			准备参数
+				添加基本参数
+			循环要填充的模板(other_templet_list)
+				填充模板
+	
+	填充模板的过程
+		读取模板(在mian方法所在包下)
+		添加模板中的参数(@@param:{xxx})
+		填充模板内容
+		填充模板名称
+		计算模板生成位置(java文件根据包名计算,其它文件根据参数 xxxDir 计算)
+		写入文件
+	
+
+基本模板
+	_all_pub_param.templet			存放基本参数
+	_every_table_init_param.templet	存放跟表相关的参数
+基本模板中的固定key
+	输出路径(out_path)
+	跟表相关的模板(table_templet_list)
+	跟表无关的模板(other_templet_list)
+	表相关信息(tableInfoMap)
+自动填充的参数
+	基本参数(可在任何位置使用):
+		添加main方法所在类的对象(填充key:类名首字母小写)
+	跟表相关的参数(可在_every_table_init_param.templet 和 自定义跟表相关的模板中使用):
+		填加表名(填充key:tableName)
+自定义模板
+	位置: 跟main方法同包
+	名称: *.templet
+	参数: 
+		@@param:{
+			key:value
+			...
+		}
+	内容:
+		除参数内容外的内容
+添加自定义方法
+	常用方法:写到work.codegenerate.base.CommonUtils中
+	特有的方法:写到main方法所在类中

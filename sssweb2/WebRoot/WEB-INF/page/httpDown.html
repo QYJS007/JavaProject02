@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>sssweb-http批量下载</title>
+        <meta charset="utf-8">
+        <style>
+        	body { margin:0; font-family:Simsun;}
+			.b-tab>div {width:1000px;display:none;float:left; border:1px solid;}
+			.b-tab>input {float:left;}
+			.b-tab input.active {background:#69c;}
+			.b-tab div.active {display:block;}
+			
+        	a,a :visited { color:#06c; text-decoration:none;}
+        	h1 { margin:0 auto; text-align:center;}
+        	.content { width:1000px; height:510px; margin:0 auto; padding:5px;}
+        	.div0 { float:right; margin-top:20px; padding-bottom:15px; border-bottom:1px solid #c93;}
+        	.div1,.div2 { float:right; width:940px;}
+        	.select1 { width:200px;}
+        	.span1 { display:inline-block; background:#9cf;}
+        	.span2 { display:inline-block; margin:0 15px;}
+        	.span { display:block; margin-top:10px;}
+        	.input1 { width:500px; margin-right:30px;}
+        	.input2 { width:82px; margin-right:40px;}
+        	.input3 { width:160px;}
+        	.textarea1 { width:700px; height:80px;}
+        	.float_left { float:left;}
+        	.tishi { float:right; font-size:9px; width:110px;}
+        	
+        	table { width:100%}
+        	td { border:1px solid #369;}
+        	.title { text-align:center; background:#9ae;}
+        	
+        	#shuoming_lianjiezhengze,#shuoming_xiayiyelianjie { font-size:12px; margin-left:8px;}
+        	#shuoming_lianjiezhengze_content,#shuoming_xiayiyelianjie_content { display:none;}
+        	#jiance,#downBtn { width:80px; height:25px;}
+        	#stopBtn { float:right; position:relative; top:-5px;}
+        </style>
+        <script src="/sssweb2/public/javascripts/ZeroClipboard.js"></script>
+        <script src="/sssweb2/public/javascripts/utils.js"></script>
+        <script>
+        	window.onload=function(){
+        		var oTabDiv = document.getElementById('tabDiv');
+        		var oSelect = document.getElementsByTagName('select')[0];
+        		var oBaseUrl = document.getElementById('baseUrl');
+        		var oUtf8 = document.getElementById('utf8');
+        		var oGbk = document.getElementById('gbk');
+        		var oRegex = document.getElementById('regex');
+        		var oNameRegex = document.getElementById('nameRegex');
+        		var oNextLayer = document.getElementById('nextLayer');
+        		var oNextPage = document.getElementById('nextPage');
+        		var oRunInterval = document.getElementById('runInterval');
+        		var oJianCe = document.getElementById('jiance');
+
+        		var oSavePath = document.getElementById('savePath');
+        		var oNewDirNum = document.getElementById('newDirNum');
+        		var oDownBtn = document.getElementById('downBtn');
+        		var shijian = document.getElementById('shijian');
+        		var jindu = document.getElementById('jindu');
+        		var oStopBtn = document.getElementById('stopBtn');
+        		
+        		//获取所有模板
+        		var url = '/sssweb2/HttpDownController/getAllTemplet.do';
+    			ajax(url,null,function(str){
+    				//将模板添加到选项中
+    				var arr = JSON.parse(str);
+    				for(var i=0;i<arr.length;i++){
+    					var oOption = document.createElement('option');
+    					oOption.innerHTML = arr[i].name;
+    					oOption.value = JSON.stringify(arr[i]);
+    					oSelect.appendChild(oOption);
+    				}
+    			});
+        		
+        		oSelect.onchange = function(){
+        			if(!oSelect.value){
+        				return;
+        			}
+        			var templetInfo = JSON.parse(oSelect.value);
+       				oBaseUrl.value = templetInfo.url;
+       				oRegex.value = templetInfo.urlRegex;
+       				oNameRegex.value = templetInfo.nameRegex;
+       				oNextLayer.value = templetInfo.nextLayer;
+       				oNextPage.value = templetInfo.nextPage;
+       				oRunInterval.value = templetInfo.intervalTime;
+       				if(templetInfo.encoding=='utf-8'){
+       					oUtf8.checked = 'checked';
+       				}else{
+       					oGbk.checked = 'checked';
+       				}
+        			
+       				//修改父页面的input的value
+           			var parentODiv = window.parent.document.getElementsByTagName('div')[0];
+           			var aDiv = parentODiv.getElementsByTagName('div');
+           			for(var i=0;i<aDiv.length;i++){
+   	        			if(aDiv[i].className.indexOf('active')!=-1){
+   	        				parentODiv.getElementsByTagName('input')[i].value = this.options[this.selectedIndex].text;
+   	        			}
+           			}
+        		}
+        		
+        		var checkResult = null;
+        		//当点击检测按钮时
+        		oJianCe.onclick = function(){
+        			//删除原来的选项卡
+    				var firstInput = oTabDiv.getElementsByTagName('input')[0];
+    				var firstDiv = oTabDiv.getElementsByTagName('div')[0];
+    				oTabDiv.innerHTML = '';
+    				oTabDiv.appendChild(firstInput);
+    				oTabDiv.appendChild(firstDiv);
+    				
+        			var encoding = "utf-8";
+        			if(oGbk.checked){
+        				encoding = "gbk";
+        			}
+        			var url = '/sssweb2/HttpDownController/check.do';
+        			var param = "baseUrl="+encodeURIComponent(oBaseUrl.value,"utf-8");
+        			param += "&regex="+encodeURIComponent(oRegex.value,"utf-8");
+        			param += "&nameRegex="+encodeURIComponent(oNameRegex.value,"utf-8");
+        			param += "&nextLayer="+encodeURIComponent(oNextLayer.value,"utf-8");
+        			param += "&nextPage="+encodeURIComponent(oNextPage.value,"utf-8");
+        			param += "&runInterval="+encodeURIComponent(oRunInterval.value,"utf-8");
+        			param += "&encoding="+encoding;
+        			ajax(url,param,function(str){
+        				checkResult = str;
+        				eval("var urlArrArr="+str);
+        				
+        				var newInputArr = [];
+        				var newDivArr = [];
+        				for(var i=0;i<urlArrArr.length;i++){
+        					var urlArr = urlArrArr[i];
+        					//创建一个新的选项卡
+        					var newInput = document.createElement('input');
+        					newInput.type="button";
+        					newInput.className = "j-btn";
+        					if(i==urlArrArr.length-1){
+        						newInput.value = "文件列表("+urlArr.length+")";
+        					}else{
+        						newInput.value = "第"+(i+1)+"层链接("+urlArr.length+")";
+        					}
+        					
+        					var newDiv = document.createElement('div'); 
+        					newDiv.className = "j-box";
+        					
+        					//填充数据
+        					var divInnerHTML = '';
+        					divInnerHTML+='<table cellspacing="0">';
+        					divInnerHTML+='<tr class="title">';
+        					divInnerHTML+='<td style="width:600px;">url</td>';
+        					if(i==urlArrArr.length-1){
+        						divInnerHTML+='<td style="width:300px;">名称</td>';
+        						divInnerHTML+='<td style="width:100px;">下载状态</td>';
+        					}else{
+        						divInnerHTML+='<td style="width:300px;">标题</td>';
+        						divInnerHTML+='<td style="width:100px;">子项个数</td>';
+        					}
+        					divInnerHTML+='</tr>';
+        					for(var j=0;j<urlArr.length;j++){
+        						divInnerHTML+='<tr>';
+            					divInnerHTML+='<td><span style="display:inline-block; width:600px; overflow:hidden">'+urlArr[j].url+'</span></td>';
+            					divInnerHTML+='<td><span style="display:inline-block; width:300px; overflow:hidden">'+(urlArr[j].name?urlArr[j].name:'暂无')+'</span></td>';
+            					if(i==urlArrArr.length-1){
+            						divInnerHTML+='<td>未下载</td>';
+            					}else{
+            						divInnerHTML+='<td>'+urlArr[j].subUrlCount+'</td>';
+            					}
+            					divInnerHTML+='</tr>';
+        					}
+        					divInnerHTML+='</table>';
+        					newDiv.innerHTML = divInnerHTML;
+        					
+        					newInputArr.push(newInput);
+        					newDivArr.push(newDiv)
+        				}
+        				
+        				//删除原来的选项卡
+        				var firstInput = oTabDiv.getElementsByTagName('input')[0];
+        				var firstDiv = oTabDiv.getElementsByTagName('div')[0];
+        				oTabDiv.innerHTML = '';
+        				
+        				//添加到页面中
+        				oTabDiv.appendChild(firstInput);
+        				for(var i=0;i<newInputArr.length;i++){
+        					oTabDiv.appendChild(newInputArr[i]);
+        				}
+        				oTabDiv.appendChild(firstDiv);
+        				for(var i=0;i<newDivArr.length;i++){
+        					oTabDiv.appendChild(newDivArr[i]);
+        				}
+        				tab('j-tab');
+        				
+        				shijian.innerHTML = '下载时间:0秒';
+        				jindu.innerHTML = '下载进度:0/0';
+        				alert('检测完成');
+        			});
+        		}
+        		
+        		//当点击下载按钮时
+        		oDownBtn.onclick = function(){
+        			var aTable = oTabDiv.getElementsByTagName('table');
+        			if(aTable.length<1){
+        				alert('先检测再下载');
+        				return;
+        			}
+        			
+        			var timer = null;
+        			//开始下载
+        			var url = '/sssweb2/HttpDownController/down.do';
+        			var param = "savePath="+encodeURIComponent(oSavePath.value,"utf-8");
+        			param += "&newDirNum="+encodeURIComponent(oNewDirNum.value,"utf-8");
+        			param += "&checkResult="+encodeURIComponent(checkResult,"utf-8");
+        			ajax(url,param,function(str){
+        				clearInterval(timer);
+        				downQuery();
+        				setTimeout(function(){
+        					alert('下载完成')
+        				},30);
+        			},function(str){
+        				clearInterval(timer);
+        				downQuery();
+        				setTimeout(function(){
+        					alert('下载失败')
+        				},30);
+        			});
+        			
+        			//获取下载状态td
+        			var aTr = aTable[aTable.length-1].getElementsByTagName('tr');
+        			var tdArr = [];
+        			for(var i=1;i<aTr.length;i++){
+        				tdArr.push(aTr[i].children[2]);
+        			}
+        			
+        			//定时查询下载结果
+        			var startTime = new Date().getTime();
+        			timer = setInterval(downQuery,1000);
+        			function downQuery(){
+        				var url = '/sssweb2/HttpDownController/query.do';
+        				var successNum = 0;
+        				ajax(url,'',function(result){
+            				eval('var resultArr = '+result);
+            				for(var j=0;j<tdArr.length;j++){
+            					if(resultArr[j]){
+            						successNum++;
+            						tdArr[j].innerHTML = '下载完成';
+            					}else{
+            						tdArr[j].innerHTML = '未下载';
+            					}
+            				}
+            				shijian.innerHTML = '下载时间:'+Math.floor((new Date().getTime()-startTime)/1000)+'秒';
+            				jindu.innerHTML = '下载进度:'+successNum+'/'+tdArr.length;
+            			});
+        				
+        			}
+        		}
+        		
+        		//当点击停止按钮时
+        		oStopBtn.onclick = function(){
+        			var url = '/sssweb2/HttpDownController/stop.do';
+        			ajax(url);
+        		}
+        	}
+        </script>
+    </head>
+    <body>
+    	<div class="content">
+    		<input id="stopBtn" type="button" value="停止">
+   			<span id="jindu" class="tishi">下载进度:0/0</span>
+   			<span id="shijian" class="tishi">下载时间:0秒</span>
+    		<div class="b-tab j-tab" id="tabDiv">
+	    		<input class="j-btn active" type="button" value="选项"/>
+				<div class="j-box active">
+					<div class="div0">
+			    		<span class="span1">抓取</span>　
+				    	<div class="div1">
+				    		抓取模板:<select class="select1">
+				    			<option></option>			    			
+				    		</select>
+				    		<span class="span">
+				    			目标链接:<input id="baseUrl" class="input1">
+				    			编码:
+				    			<input type="radio" name="encoding" value="utf-8" id="utf8"  checked="checked">utf-8
+   								<input type="radio" name="encoding" value="gbk" id="gbk" >gbk
+   							</span>
+   							<span class="span" style="overflow:hidden;">
+   								<span class="float_left">链接正则:</span>
+   								<textarea id="regex" class="textarea1 float_left"></textarea>
+   								<a id="shuoming_lianjiezhengze" href="javascript:alert(document.getElementById('shuoming_lianjiezhengze_content').innerHTML);">说明</a>
+   								<span id="shuoming_lianjiezhengze_content">
+   									链接正则:
+   									        一行表示一层链接
+   									        最少有一个组,第一组代表子链接,第二组可选代表标题
+   									文件名称正则:
+   									        在文件链接所在页面进行匹配
+   								</span>
+				    		</span>
+				    		<span class="span">
+   								名称正则:<input class="input1" id="nameRegex">
+				    		</span>
+				    		<span class="span">
+				    			作为下一层链接:<input class="input3" style="margin-right:32px;" id="nextLayer">
+   								下一页链接:<input class="input3" id="nextPage">
+   								<a id="shuoming_xiayiyelianjie" href="javascript:alert(document.getElementById('shuoming_xiayiyelianjie_content').innerHTML);">说明</a>
+   								<span id="shuoming_xiayiyelianjie_content">
+   									分页相关
+  									下一层链接:
+  									       当前页既想作为匹配其它页的源,又想作为匹配下一层页面的源时使用
+									       将本层链接的源检测页放置到下一层列表中
+									       作为匹配下一层链接的源检测页
+									下一页链接:
+									        当利用"下一页"链接所有的页面时使用
+									        本层正则为到下一页的正则,将进行循环匹配
+									        直到没有找到匹配结果,再进行下一层链接的匹配
+									多个值用逗号隔开,例:1,2
+   								</span>
+				    		</span>
+				    		<span class="span">
+   								请求间隔:<input id="runInterval" name="runInterval" style="width:25px;"> 毫秒
+				    		</span>
+			    		    <span class="span" style="text-align:center;">  
+			    		   		<input id="jiance" type="button" value="检测"></input>
+			    		    </span>
+						</div>
+					</div>
+			    	<div class="div0" style="border:0;">
+			    		<span class="span1">下载</span>　
+				    	<div class="div2">
+				    		保存路径:<input class="input1" id="savePath" value="C:\Users\Administrator\Desktop\新建文件夹 (2)">
+				    		<span class="span">
+   								创建新文件夹的链接层数:<input class="input2" value="1,2" id="newDirNum">
+				    		</span>
+				    		<span class="span" style="text-align:center;">  
+			    		   		<input id="downBtn" type="button" value="下载"></input>
+			    		    </span>
+			   			</div>
+		    		</div>
+				</div>
+				
+			</div>
+	    	
+    	</div>
+    </body>
+</html>

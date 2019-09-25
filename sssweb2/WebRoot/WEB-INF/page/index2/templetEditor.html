@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>sssweb-模板文本编辑</title>
+        <meta charset="utf-8">
+        <style>
+        	body { margin:0;}
+        	.content { width:950px; height:500px; border:1px solid; margin:0 auto; padding:15px 45px;}
+        	.textarea{ width:100%; height:100%;}
+        </style>
+		<script src="/sssweb2/public/ace-editor/ace.js"></script>
+		<script src="/sssweb2/public/ace-editor/mode-php.js"></script>
+		<script src="/sssweb2/public/ace-editor/theme-eclipse.js"></script>
+        <script src="/sssweb2/public/javascripts/ZeroClipboard.js"></script>
+        <script src="/sssweb2/public/javascripts/utils.js"></script>
+        <script>
+        	window.onload=function(){
+        		//ace编辑器
+        		var editor = createEditor('textarea',true);
+        		
+        		//修改字体
+        		document.getElementById('textarea').children[0].style.fontSize='15px';
+        		
+        		//读取模板内容
+				var url = '/sssweb2/TempletEditorController/getTempletStr.do';
+				ajax(url,null,function(str){
+					editor.setContentValue(str);
+    			});
+    			
+        		//当按下ctrl+s时
+        		document.onkeydown = function(e){
+        			if(e.keyCode==83 && e.ctrlKey){
+        				//发送请求保存
+        				var url = '/sssweb2/TempletEditorController/save.do';
+        				var params = 'templetStr='+encodeURIComponent(editor.getContentValue(),'utf-8');
+            			ajax(url,params,function(str){
+            				
+            			});
+            			return false;
+        			}
+        		}
+        	}
+        </script>
+    </head>
+    <body>
+    	<div class="content">
+	   		<div id="textarea" class="textarea"></div>
+    	</div>
+    </body>
+</html>

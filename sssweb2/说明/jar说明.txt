@@ -1,0 +1,75 @@
+jstl
+	jstl-1.1.2.jar
+	standard-1.1.2.jar
+判断文件编码
+	cpdetector.jar
+	antlr.jar
+	chardet.jar
+读取word和excel
+	poi-3.9-20121203.jar
+	poi-ooxml-3.9-20121203.jar
+	poi-ooxml-schemas-3.9-20121203.jar
+	poi-scratchpad-3.9-20121203.jar
+	xmlbeans-2.3.0.jar
+	dom4j-1.6.1.jar
+	jaxen-1.1.1.jar
+json
+	jackson-all-1.9.11.jar
+生成二维码
+	zxing-core.jar
+svn操作
+	svnkit-1.8.11.jar
+	sqljet-1.1.10.jar
+	antlr-runtime-3.4.jar
+	sequence-library-1.0.3.jar
+rsa加密
+	bcprov-jdk15-1.45.jar
+生成拼音
+	pinyin4j-2.5.0.jar
+ganymed-ssh2-build210.jar
+	远程连接linux并执行命令
+ant.jar
+	使用了其中的压缩功能
+生成xml
+	xmlpull_1_0_5.jar
+	xstream-1.4.4.jar
+ognl表达式
+	ognl-3.0.6.jar
+模板引擎
+	jetbrick-commons-2.1.1.jar
+	jetbrick-template-2.1.2.jar
+	antlr4-runtime-4.3.jar
+redis
+	jedis-2.1.0.jar
+	commons-pool-1.5.4.jar
+ZeroClipboard.js使用说明(功能:使用程序复制页面的文本)
+	参考:http://www.piaoyi.org/web-css/js-copy-clipboard.html
+	需在项目中运行,不能单独一个html文件,否则没有flash权限,不能成功
+	引入ZeroClipboard.js和ZeroClipboard.swf
+	在ZeroClipboard.js中修改moviePath属性为ZeroClipboard.swf访问路径
+	页面代码
+		<html>
+		<head>
+		<title>Zero Clipboard Test</title>
+		<script src="/public/javascripts/ZeroClipboard.js"></script>
+		<script language="JavaScript">
+			function copy(btnId,callback){
+				var clip = new ZeroClipboard.Client();
+			  	clip.setHandCursor(true);  	
+			  	clip.addEventListener('mouseOver', function (client) {
+			    	clip.setText( callback() );
+			  	});
+			  	clip.glue('clip_button');
+			}
+			window.onload = function(){
+				copy('clip_button',function(){
+					return document.getElementById('fe_text').value;
+				});
+			}
+		</script>
+		</head>
+		<body>
+		<input id="fe_text" cols=50 rows=5 value=复制内容文本1 >
+		<input id="clip_button" type="button" value="复制"></input>
+		</body>
+		</html>
