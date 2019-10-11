@@ -19,7 +19,8 @@ public class MyConsumer extends Thread{
 		Properties props = new Properties();   
 		//props.put("bootstrap.servers", "localhost:9092,localhost:9093,localhost:9094");
 		//zookeeper.connect=192.168.3.18:2181,192.168.3.19:2181,192.168.3.60:2181
-		props.put("bootstrap.servers", "192.168.3.18:2181,192.168.3.19:2181,192.168.3.60:2181");
+		props.put("bootstrap.servers", " 192.168.168.95:9092");
+//		props.put("bootstrap.servers", "192.168.3.18:2181,192.168.3.19:2181,192.168.3.60:2181");
 		props.put("group.id", "test");
 		props.put("enable.auto.commit", "true");
 		props.put("auto.commit.interval.ms", "60000");
