@@ -15,7 +15,7 @@ public class USBInterface implements HardwareInterface {
 		System.out.println("usb连接cpu");
 	}
 
-	@Override
+	@Override	
 	public void visitor(VideoCard vCard) {
 		System.out.println("用usb连接显卡");
 	}
