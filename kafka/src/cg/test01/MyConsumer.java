@@ -20,15 +20,15 @@ public class MyConsumer extends Thread{
 		//props.put("bootstrap.servers", "localhost:9092,localhost:9093,localhost:9094");
 		//zookeeper.connect=192.168.3.18:2181,192.168.3.19:2181,192.168.3.60:2181
 		props.put("bootstrap.servers", " 192.168.168.95:9092");
-//		props.put("bootstrap.servers", "192.168.3.18:2181,192.168.3.19:2181,192.168.3.60:2181");
+		//		props.put("bootstrap.servers", "192.168.3.18:2181,192.168.3.19:2181,192.168.3.60:2181");
 		props.put("group.id", "test");
 		props.put("enable.auto.commit", "true");
 		props.put("auto.commit.interval.ms", "60000");
 		props.put("session.timeout.ms", "30000");
 		props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
 		props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-/*
- * •zookeeper.connect：zookeeper连接服务器地址
+		/*
+		 * •zookeeper.connect：zookeeper连接服务器地址
  •zookeeper.session.timeout.ms：zookeeper的session过期时间，默认5000ms，用于检测消费者是否挂掉
  •zookeeper.sync.time.ms：当consumer reblance时，重试失败时时间间隔
  •group.id：指定消费组
@@ -43,34 +43,35 @@ public class MyConsumer extends Thread{
  •auto.offset.reset：如果zookeeper没有offset值或offset值超出范围。那么就给个初始的offset。有smallest、largest、 anything可选，分别表示给当前最小的offset、当前最大的offset、抛异常。默认largest
  •derializer.class：指定序列化处理类，默认为kafka.serializer.DefaultDecoder,即byte[]
 
- */
+		 */
 		return props;   
 	}
 
-	  // 自动提交偏移量
-    public void simpleConsumer() {
-        Properties properties = createConsumerConfig();
-        // 消费者  
-        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(properties);
-       // consumer.subscribe(Arrays.asList("test"));
-        consumer.subscribe(Arrays.asList("providecarenterprisespic"));
-        try {
-            while (true) {
-            	 //consumer.poll();
-              //  ConsumerRecords<String, String> records = consumer.poll(1000L);
-             //   System.out.println(records);
-               /* for (ConsumerRecord<String, String> record : records) {
+	// 自动提交偏移量
+	public void simpleConsumer() {
+		Properties properties = createConsumerConfig();
+		// 消费者  
+		KafkaConsumer<String, String> consumer = new KafkaConsumer<String, String>(properties);
+		consumer.subscribe(Arrays.asList("test"));
+		consumer.subscribe(Arrays.asList("providecarenterprisespic"));
+		try {
+			while (true) {
+				//            	 char[] records;
+				//				consumer.poll(null);
+				//                ConsumerRecords<String, String> records = consumer.poll(1000L);
+				/*  System.out.println(records);
+                for (ConsumerRecord<String, String> record : records) {
                 	System.out.println(record.value());
                 }*/
-            }
-        } finally {
-            //consumer.close();
-        }
-    }
+			}
+		} finally {
+			//consumer.close();
+		}
+	}
 
 	public static void main(String[] args) {   
 		MyConsumer consumerThread = new MyConsumer();   
-		
+
 		consumerThread.simpleConsumer();   
 	}  
 
