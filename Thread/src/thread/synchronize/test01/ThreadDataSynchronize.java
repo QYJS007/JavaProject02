@@ -1,13 +1,12 @@
 package thread.synchronize.test01;
 
-import org.omg.CosNaming.NamingContextExtPackage.AddressHelper;
 
 public class ThreadDataSynchronize {
 	/*
 	 * 数据同步: 线程间数据共享
 	 */
 	private Integer  account= 1000; 
-	public static void main(String[] args) {
+	public static void main(String[] args) {  
 		final ThreadDataSynchronize synchronize = new ThreadDataSynchronize();
 		new Thread(new Runnable() {
 
