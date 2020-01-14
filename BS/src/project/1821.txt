@@ -1,0 +1,14 @@
+qtrip_business/app/controllers/login/zx/OrderInfoAction.java
+qtrip_business/app/bpinterface/zx/OrderInfoBPInterface.java
+qtrip_business/app/bp/zx/OrderInfoBP.java
+qtrip_business/app/models/response/zx/insurance/InsuranceDetailResponse.java
+qtrip_business/app/models/response/zx/insurance/InsuranceInfoResponse.java
+qtrip_business/app/models/response/zx/insurance/RefundInsuranceResponse.java
+qtrip_business/conf/routes
+qtrip_business/app/resource.properties
+qtrip_pub/app/pub_bp/InsuranceServerBP.java
+qtrip_pub/app/models/vo/insure/InsuranceElectronicInvoiceVo.java
+qtrip_pub/app/models/vo/insure/InsuranceElectronicPolicyVo.java
+qtrip_platform/public/javascripts/policysendinfo.js
+qtrip_pub/app/pub_bp/zx/PolicysendinfoBP.java
+qtrip_pub/app/models/vo/PolicyInfoVo.java
