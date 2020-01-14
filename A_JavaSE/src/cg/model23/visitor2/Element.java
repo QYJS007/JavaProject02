@@ -1,11 +1,11 @@
 package cg.model23.visitor2;
 
 public abstract class Element {
-    protected String name; //菜名
-    protected float price; //价格
-    protected int weight;    //份量
+    protected String name; //鑿滃悕
+    protected float price; //浠锋牸
+    protected int weight;    //浠介噺
     
-    abstract public void 供给(Visitor visitor);
+    abstract public void 渚涚粰(Visitor visitor);
     
     public String getName() {
         return name;

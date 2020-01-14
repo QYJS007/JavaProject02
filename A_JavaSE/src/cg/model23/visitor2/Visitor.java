@@ -2,16 +2,16 @@ package cg.model23.visitor2;
 
 public interface Visitor {
 
-	/*void 选菜(Cabbage cabbage);
+	/*void 閫夎彍(Cabbage cabbage);
 
-	void 选菜(Meal meal);
+	void 閫夎彍(Meal meal);
 
-	void 选菜(RoastDuck roastDuck);
+	void 閫夎彍(RoastDuck roastDuck);
 
-	void 选菜(RoastPork roastPork);
+	void 閫夎彍(RoastPork roastPork);
 
-	void 选菜(Soup soup);*/
+	void 閫夎彍(Soup soup);*/
 
-	void 选菜(Element element);
+	void 閫夎彍(Element element);
 
 }

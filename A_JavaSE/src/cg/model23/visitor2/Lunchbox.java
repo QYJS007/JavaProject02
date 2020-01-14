@@ -3,8 +3,8 @@ package cg.model23.visitor2;
 import java.util.HashMap;
 
 /**
- * ÆÕÍ¨²Ëµ¥
- * @author ÄÏ³Ç²İ
+ * æ™®é€šèœå•
+ * @author å—åŸè‰
  *
  */
 public class Lunchbox {
@@ -29,9 +29,9 @@ public class Lunchbox {
 
     public void Accept(Visitor visitor) {
         for (Element e : elements.values()) {
-            e.¹©¸ø(visitor);
+            e.ä¾›ç»™(visitor);
             allPrice += e.getPrice() * e.getWeight();
         }
-        System.out.print("×Ü¼Û:"+allPrice);
+        System.out.print("æ€»ä»·:"+allPrice);
     }
 }
