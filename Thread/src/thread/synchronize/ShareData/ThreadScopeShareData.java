@@ -3,6 +3,10 @@ package thread.synchronize.ShareData;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class ThreadScopeShareData {
 	/*
@@ -23,6 +27,7 @@ public class ThreadScopeShareData {
 				}
 			}).start();
 		}
+		
 	}
 	
 	// 俩个任务模块 A

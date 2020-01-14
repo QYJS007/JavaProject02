@@ -27,11 +27,11 @@ public class ThreadDataSynchronize {
 				while(true){
 					synchronize.subtractingMoney(500);
 					synchronize.lookMoney();
-					try {
-						Thread.sleep(1000);
+					/*try {
+//						Thread.sleep(1000);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
-					}
+					}*/
 				}
 			}
 		}).start();
